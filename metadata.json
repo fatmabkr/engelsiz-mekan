@@ -1,0 +1,6 @@
+{
+  "name": "Engelsiz Mekân",
+  "description": "Tekerlekli sandalye kullanıcıları ve hareket kısıtlılığı olan bireyler için fiziksel olarak erişilebilir mekânları keşfetme, puanlama ve topluluk paylaşım platformu.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
