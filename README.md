@@ -1,24 +1,24 @@
 # ♿ Engelsiz Mekân
 
-Engelsiz Mekân, engelli bireyler ve özel gereksinimi olan tüm kullanıcılar için fiziksel ve sosyal alanların erişilebilirlik durumunu harita üzerinde listeleyen, değerlendiren ve topluluk desteği sağlayan modern bir web uygulamasıdır.
+Engelsiz Mekân, engelli bireyler ve özel gereksinimi olan tüm kullanıcılar için fiziksel ve sosyal alanların erişilebilirlik durumunu harita üzerinde listeleyen, değerlendiren ve topluluk destekli bir platformdur. Kullanıcılar mekânlar hakkında bilgi ekleyebilir, fotoğraf ve puanlama bırakabilir, ayrıca kişisel erişilebilirlik tercihlerine göre mekânları filtreleyip rota oluşturabilirler.
 
 ---
 
 ## 🚀 Öne Çıkan Özellikler
 
-* 📍 **Etkileşimli Erişilebilirlik Haritası:** Mekânların tekerlekli sandalye rampası, engelli tuvaleti, asansör, işitme/görme engelli uygunluğu gibi detaylı erişilebilirlik durumlarını inceleyin.
-* 🔍 **Detaylı Filtreleme & Arama:** Kendi erişilebilirlik tercihlerinize göre (rampalar, geniş kapılar, Braille alfabesi, sesli rehber vb.) uygun mekânları kolayca filtreleyin.
-* ➕ **Mekân & Değerlendirme Ekleme:** Topluluğa katkıda bulunmak için yeni erişilebilir mekânlar ekleyin veya mevcut mekânlara fotoğraf ve puanlama ile yorum bırakın.
-* 🤝 **Topluluk & Sosyal Etkileşim:** Erişilebilirlik deneyimlerini ve önerileri paylaşın, harita üzerinde arkadaşlarınızla etkileşime geçin.
+* 📍 **Etkileşimli Erişilebilirlik Haritası:** Mekânların tekerlekli sandalye rampası, engelli tuvaleti, asansör, işitme/görme engelli uygunluğu gibi detaylı erişilebilirlik bilgilerini görüntüleyin.
+* 🔍 **Detaylı Filtreleme & Arama:** Rampalar, geniş kapılar, Braille alfabesi, sesli rehber gibi kriterlere göre mekânları filtreleyin.
+* ➕ **Mekân & Değerlendirme Ekleme:** Yeni erişilebilir mekânlar ekleyin veya mevcut mekânlara fotoğraf ve puanlama ile geri bildirim bırakın.
+* 🤝 **Topluluk & Sosyal Etkileşim:** Erişilebilirlik deneyimlerinizi paylaşın ve toplulukla etkileşime geçin.
 * 🤖 **Yapay Zeka Destekli Erişilebilirlik Asistanı:** Gemini API entegrasyonu ile mekânlar ve erişilebilirlik tavsiyeleri hakkında akıllı yanıtlar alın.
-* 🗺️ **Yol Tarifi & Yol Arkadaşı:** Seçilen mekânlara erişilebilir yollardan rota oluşturun.
+* 🗺️ **Yol Tarifi & Yol Arkadaşı:** Seçilen mekânlara erişilebilir rotalar oluşturun.
 
 ---
 
 ## 🛠️ Kullanılan Teknolojiler
 
 - **Frontend:** React 19, TypeScript, Vite
-- **Stilleme:** Tailwind CSS, Lucide React Icon Seti, Motion (Framer Motion)
+- **Stil:** Tailwind CSS, Lucide React ikonları, Framer Motion
 - **Harita Servisleri:** Leaflet, React Leaflet, Google Maps API (`@vis.gl/react-google-maps`)
 - **Yapay Zeka & Backend:** `@google/genai` (Gemini API), Express, Firebase
 
@@ -62,12 +62,23 @@ Engelsiz Mekân, engelli bireyler ve özel gereksinimi olan tüm kullanıcılar 
 ## 📜 Komutlar
 
 - `npm run dev`: Geliştirici sunucusunu başlatır.
-- `npm run build`: Projeyi canlıya hazırlamak için derler.
+- `npm run build`: Prodüksiyon için derler.
 - `npm run preview`: Derlenmiş (production) sürümü yerelde önizler.
-- `npm run lint`: TypeScript tip kontrollerini gerçekleştirir.
+- `npm run lint`: Kod stil ve tip kontrollerini gerçekleştirir.
 
 ---
 
 ## 🤝 Katkıda Bulunma
 
-Hata bildirimleri, yeni özellik istekleri ve pull request'ler her zaman memnuniyetle karşılanır.
+Hata bildirimleri, yeni özellik istekleri ve pull request'ler her zaman memnuniyetle karşılanır. Katkıda bulunmak için:
+
+1. Repoyu fork edin.
+2. Yeni bir branch oluşturun: `git checkout -b feature/islem`.
+3. Değişikliklerinizi yapın, test edin ve commit edin.
+4. Pull request açın.
+
+---
+
+## Lisans
+
+Proje lisansı hakkında bilgi burada yer almalıdır (ör. MIT). Eğer lisans eklenmemişse, repo sahibinin tercih ettiği lisansı ekleyin.
