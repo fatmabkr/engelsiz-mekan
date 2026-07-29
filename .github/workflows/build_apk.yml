@@ -41,17 +41,11 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
 
-      - name: Fix BouncyCastle Version (if needed)
-        run: |
-          if [ -f android/build.gradle ]; then
-            echo -e "\nallprojects { configurations.all { resolutionStrategy { force 'org.bouncycastle:bcprov-jdk18on:1.78' } } }" >> android/build.gradle
-          fi
-
       - name: Build APK with Gradle
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon
+          ./gradlew assembleDebug --no-daemon --refresh-dependencies
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
