@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Screen, 
   Venue, 
@@ -46,6 +46,8 @@ import {
   NotificationsView 
 } from './views/AuthAndInfoViews';
 
+import { logEventSafe } from './firebase';
+
 export default function App() {
   // Navigation State
   const [currentScreen, setCurrentScreen] = useState<Screen>('home');
@@ -59,10 +61,21 @@ export default function App() {
   const [friends, setFriends] = useState<Friend[]>([]);
   const [preferences, setPreferences] = useState<AccessibilityPreferences>(INITIAL_PREFERENCES);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setPosts(MOCK_COMMUNITY_POSTS);
     setVenues(MOCK_VENUES);
   }, []);
+
+  // Track page_view whenever the current screen or selected venue changes
+  useEffect(() => {
+    (async () => {
+      try {
+        await logEventSafe('page_view', { page: currentScreen, venueId: selectedVenue?.id ?? null });
+      } catch (e) {
+        // ignore analytics errors
+      }
+    })();
+  }, [currentScreen, selectedVenue]);
 
   // ESKİŞEHİR KNOWN LOCATIONS DICTIONARY
   const getEskisehirCoords = (locationStr: string) => {
@@ -227,6 +240,12 @@ export default function App() {
   const handleOpenDetail = (venue: Venue) => {
     setSelectedVenue(venue);
     setCurrentScreen('venue_detail');
+    // log selection for analytics (non-blocking)
+    try {
+      logEventSafe('select_venue', { venueId: venue.id, venueName: venue.name });
+    } catch (e) {
+      // ignore
+    }
   };
 
   // Open Venue Detail by ID
