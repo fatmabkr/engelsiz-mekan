@@ -1,6 +1,6 @@
 {
   "appId": "com.engelsizmekan.app",
-  "appName": "Engelsiz Mekân",
+  "appName": "Yol Açık",
   "webDir": "dist",
   "server": {
     "androidScheme": "https"
