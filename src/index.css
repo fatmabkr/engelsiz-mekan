@@ -59,9 +59,18 @@
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
-/* Hide Leaflet Attribution & Flags */
-.leaflet-control-attribution {
+/* Hide Leaflet Attribution, Flag & Copyright Footer */
+.leaflet-control-attribution,
+.leaflet-bottom.leaflet-right,
+.leaflet-bottom .leaflet-control-attribution,
+.leaflet-container .leaflet-control-attribution,
+.leaflet-control-attribution * {
   display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  width: 0 !important;
+  pointer-events: none !important;
 }
 
 
