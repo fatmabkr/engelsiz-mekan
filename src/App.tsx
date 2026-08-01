@@ -68,76 +68,83 @@ export default function App() {
   const [isFirstTimeSurveyOpen, setIsFirstTimeSurveyOpen] = useState(true);
 
   // ── Back Button Navigation History ──
-  const screenHistoryRef = useRef<Screen[]>(['landing']);
+  const screenHistoryRef = useRef<Screen[]>(['home']);
   const isPopstateNavRef = useRef(false);
+  const lastBackPressTimeRef = useRef<number>(0);
 
-  // Safe navigate function — pushes browser history so back button works
+  // Safe navigate function — pushes screen to internal history stack
   const navigateTo = useCallback((screen: Screen) => {
     if (!isPopstateNavRef.current) {
-      screenHistoryRef.current.push(screen);
-      try {
-        window.history.pushState({ screen }, '', '');
-      } catch (_) { /* ignore */ }
+      const history = screenHistoryRef.current;
+      // Don't push duplicate if already on the same screen
+      if (history[history.length - 1] !== screen) {
+        history.push(screen);
+        try {
+          window.history.pushState({ screen }, '', '');
+        } catch (_) { /* ignore */ }
+      }
     }
     isPopstateNavRef.current = false;
     setCurrentScreen(screen);
   }, []);
 
+  // Handle back navigation logic (shared for browser popstate and Capacitor native back button)
+  const handleGoBack = useCallback(() => {
+    const history = screenHistoryRef.current;
+    
+    // Filter out any auth/landing screens from history
+    while (history.length > 0 && ['landing', 'login', 'register', 'onboarding', 'splash'].includes(history[history.length - 1])) {
+      history.pop();
+    }
+
+    if (history.length > 1) {
+      // Pop current screen and navigate to previous screen in history
+      history.pop();
+      let previousScreen = history[history.length - 1];
+      if (['landing', 'login', 'register', 'onboarding', 'splash'].includes(previousScreen)) {
+        previousScreen = 'home';
+        screenHistoryRef.current = ['home'];
+      }
+      isPopstateNavRef.current = true;
+      setCurrentScreen(previousScreen);
+      try {
+        window.history.pushState({ screen: previousScreen }, '', '');
+      } catch (_) { /* ignore */ }
+    } else {
+      // On root screen (Home) — Double-tap back button to exit app
+      const now = Date.now();
+      if (now - lastBackPressTimeRef.current < 2000) {
+        // Second press within 2 seconds: exit app natively
+        import('@capacitor/app').then(({ App: CapApp }) => {
+          CapApp.exitApp();
+        }).catch(() => {});
+      } else {
+        // First press: store timestamp & push state to prevent browser exit
+        lastBackPressTimeRef.current = now;
+        try {
+          window.history.pushState({ screen: 'home' }, '', '');
+        } catch (_) { /* ignore */ }
+      }
+    }
+  }, []);
+
   // Listen for hardware/browser back button (popstate + Capacitor native back button)
   useEffect(() => {
-    // Push an initial history entry so we have something to pop
     try {
-      window.history.pushState({ screen: 'landing' }, '', '');
+      window.history.pushState({ screen: 'home' }, '', '');
     } catch (_) { /* ignore */ }
 
-    const handlePopState = (e: PopStateEvent) => {
-      const history = screenHistoryRef.current;
-
-      // Filter history to ensure we don't go back to auth/landing screens once inside app
-      while (history.length > 1 && ['landing', 'login', 'register', 'onboarding', 'splash'].includes(history[history.length - 1])) {
-        history.pop();
-      }
-
-      // Remove the current screen from history
-      if (history.length > 1) {
-        history.pop();
-        let previousScreen = history[history.length - 1];
-        if (['landing', 'login', 'register', 'onboarding', 'splash'].includes(previousScreen)) {
-          previousScreen = 'home';
-          screenHistoryRef.current = ['home'];
-        }
-        isPopstateNavRef.current = true;
-        setCurrentScreen(previousScreen);
-        try {
-          window.history.pushState({ screen: previousScreen }, '', '');
-        } catch (_) { /* ignore */ }
-      } else {
-        // Already on root screen (home) — prevent app from exiting or going back to landing
-        try {
-          window.history.pushState({ screen: history[0] || 'home' }, '', '');
-        } catch (_) { /* ignore */ }
-      }
+    const handlePopState = () => {
+      handleGoBack();
     };
 
     window.addEventListener('popstate', handlePopState);
 
-    // Native Android Hardware Back Button Handler via Capacitor (Safely imported)
+    // Native Android Hardware Back Button Handler via Capacitor
     let backButtonListener: { remove: () => void } | null = null;
     import('@capacitor/app').then(({ App: CapApp }) => {
-      CapApp.addListener('backButton', (canGoBack) => {
-        const history = screenHistoryRef.current;
-        if (history.length > 1) {
-          history.pop();
-          let previousScreen = history[history.length - 1];
-          if (['landing', 'login', 'register', 'onboarding', 'splash'].includes(previousScreen)) {
-            previousScreen = 'home';
-            screenHistoryRef.current = ['home'];
-          }
-          isPopstateNavRef.current = true;
-          setCurrentScreen(previousScreen);
-        } else {
-          // On root screen (home), stay on home
-        }
+      CapApp.addListener('backButton', () => {
+        handleGoBack();
       }).then(l => { backButtonListener = l; }).catch(() => {});
     }).catch(() => {});
 
@@ -147,7 +154,7 @@ export default function App() {
         backButtonListener.remove();
       }
     };
-  }, []);
+  }, [handleGoBack]);
 
   const handleLoginSuccess = () => {
     // Reset history stack to 'home' so back button stops at home and doesn't go back to auth/landing screens

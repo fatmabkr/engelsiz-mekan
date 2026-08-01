@@ -325,44 +325,7 @@ export const GoogleFormOnboardingModal: React.FC<GoogleFormOnboardingModalProps>
           </button>
         </div>
 
-        {/* Form Selection Bar: Form 1 vs Form 2 */}
-        <div className="bg-purple-900 text-white px-3 py-2 flex items-center justify-between gap-2 text-xs border-b border-purple-800 shrink-0">
-          <div className="flex items-center gap-1.5">
-            <button
-              type="button"
-              onClick={() => { setActiveFormType('form1'); setSubmitted(false); setAnswers({}); }}
-              className={`px-2.5 py-1 rounded-lg font-bold transition-all cursor-pointer text-[11px] ${
-                activeFormType === 'form1'
-                  ? 'bg-white text-purple-950 shadow-xs'
-                  : 'bg-purple-800/60 text-purple-200 hover:bg-purple-800'
-              }`}
-            >
-              1. Ön Değerlendirme
-            </button>
-            <button
-              type="button"
-              onClick={() => { setActiveFormType('form2'); setSubmitted(false); setAnswers({}); }}
-              className={`px-2.5 py-1 rounded-lg font-bold transition-all cursor-pointer text-[11px] flex items-center gap-1 ${
-                activeFormType === 'form2'
-                  ? 'bg-amber-400 text-slate-950 shadow-xs'
-                  : 'bg-purple-800/60 text-purple-200 hover:bg-purple-800'
-              }`}
-            >
-              <Calendar className="w-3 h-3" />
-              <span>2. 1 Hafta Sonraki Form</span>
-            </button>
-          </div>
 
-          <button
-            type="button"
-            onClick={toggleSimulateOneWeek}
-            className="text-[10px] font-semibold underline text-purple-200 hover:text-white flex items-center gap-1 shrink-0 cursor-pointer"
-            title="1 hafta sonrasını simüle et"
-          >
-            <RefreshCw className="w-3 h-3" />
-            <span>{isOneWeekElapsed ? '1 Hafta (Aktif)' : '1 Hafta Simüle Et'}</span>
-          </button>
-        </div>
 
         {/* Tab Switcher: Sorular / Yanıtlar */}
         <div className="bg-white border-b border-purple-100 px-4 flex items-center justify-between text-xs font-bold text-slate-600 shrink-0">
