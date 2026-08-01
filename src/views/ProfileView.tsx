@@ -48,7 +48,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   preferences,
   userName = 'Kullanıcı',
   userAvatar = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80',
-  userBadge = 'Engelsiz Üye',
+  userBadge = 'Topluluk Üyesi',
   pendingCount = 0,
   onOpenPreferences,
   onOpenSettings,
