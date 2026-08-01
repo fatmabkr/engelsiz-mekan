@@ -83,7 +83,7 @@ export default function App() {
     setCurrentScreen(screen);
   }, []);
 
-  // Listen for hardware/browser back button (popstate)
+  // Listen for hardware/browser back button (popstate + Capacitor native back button)
   useEffect(() => {
     // Push an initial history entry so we have something to pop
     try {
@@ -105,7 +105,6 @@ export default function App() {
         } catch (_) { /* ignore */ }
       } else {
         // Already on root screen — prevent app from exiting
-        // Push a dummy entry back so back button doesn't close the app
         try {
           window.history.pushState({ screen: history[0] || 'home' }, '', '');
         } catch (_) { /* ignore */ }
@@ -113,7 +112,29 @@ export default function App() {
     };
 
     window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
+
+    // Native Android Hardware Back Button Handler via Capacitor (Safely imported)
+    let backButtonListener: { remove: () => void } | null = null;
+    import('@capacitor/app').then(({ App: CapApp }) => {
+      CapApp.addListener('backButton', (canGoBack) => {
+        const history = screenHistoryRef.current;
+        if (history.length > 1) {
+          history.pop();
+          const previousScreen = history[history.length - 1];
+          isPopstateNavRef.current = true;
+          setCurrentScreen(previousScreen);
+        } else {
+          // On root screen, do nothing or prevent exit
+        }
+      }).then(l => { backButtonListener = l; }).catch(() => {});
+    }).catch(() => {});
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+      if (backButtonListener) {
+        backButtonListener.remove();
+      }
+    };
   }, []);
 
   const handleLoginSuccess = () => {
