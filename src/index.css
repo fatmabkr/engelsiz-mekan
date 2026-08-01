@@ -77,3 +77,7 @@
   padding-bottom: max(20px, env(safe-area-inset-bottom, 20px));
 }
 
+/* Safe area top padding helper for Android status bar / notch / iOS status bar */
+.pt-safe {
+  padding-top: max(28px, env(safe-area-inset-top, 28px));
+}

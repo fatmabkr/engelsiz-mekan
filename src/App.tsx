@@ -65,7 +65,7 @@ export default function App() {
   const [currentScreen, setCurrentScreen] = useState<Screen>('landing');
   const [selectedVenue, setSelectedVenue] = useState<Venue | null>(null);
   const [mapSelectedVenue, setMapSelectedVenue] = useState<Venue | null>(null);
-  const [isFirstTimeSurveyOpen, setIsFirstTimeSurveyOpen] = useState(true);
+  const [isFirstTimeSurveyOpen, setIsFirstTimeSurveyOpen] = useState(false);
 
   // ── Back Button Navigation History ──
   const screenHistoryRef = useRef<Screen[]>(['home']);
@@ -156,11 +156,24 @@ export default function App() {
     };
   }, [handleGoBack]);
 
+  // Check 1 week survey reminder popup on app load
+  useEffect(() => {
+    const installDate = localStorage.getItem('app_first_install_date');
+    if (!installDate) {
+      localStorage.setItem('app_first_install_date', Date.now().toString());
+    } else {
+      const elapsedDays = (Date.now() - parseInt(installDate, 10)) / (1000 * 60 * 60 * 24);
+      const hasCompletedWeekForm = localStorage.getItem('hasCompletedGoogleFormSurvey') === 'true';
+      if (elapsedDays >= 7 && !hasCompletedWeekForm) {
+        setIsFirstTimeSurveyOpen(true);
+      }
+    }
+  }, []);
+
   const handleLoginSuccess = () => {
     // Reset history stack to 'home' so back button stops at home and doesn't go back to auth/landing screens
     screenHistoryRef.current = ['home'];
     navigateTo('home');
-    setIsFirstTimeSurveyOpen(true);
   };
 
   // App Data State
@@ -700,7 +713,7 @@ export default function App() {
       <div className="w-full sm:max-w-[430px] h-screen sm:h-[880px] sm:max-h-[94vh] bg-[#FAFAFA] relative shadow-2xl flex flex-col overflow-hidden rounded-none sm:rounded-[36px] border-0 sm:border-[6px] sm:border-slate-800">
         
         {/* Scrollable View Container */}
-        <div className="flex-1 overflow-y-auto overflow-x-hidden no-scrollbar w-full relative">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden no-scrollbar w-full relative pt-safe">
           {renderCurrentView()}
         </div>
 
