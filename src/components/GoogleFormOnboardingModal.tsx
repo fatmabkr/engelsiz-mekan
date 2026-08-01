@@ -357,17 +357,17 @@ export const GoogleFormOnboardingModal: React.FC<GoogleFormOnboardingModalProps>
                   Görüşleriniz Başarıyla Alındı
                 </p>
                 <p className="text-slate-600 text-[11px]">
-                  Yanıtlarınız kaydedildi. Yanıtları e-posta adresinize gönderebilir veya tüm sonuçları grafiksel olarak inceleyebilirsiniz.
+                  Yanıtlarınız kaydedildi ve rapor stempower26@gmail.com adresine yönlendirildi. Katkınız için teşekkür ederiz.
                 </p>
               </div>
 
-              {/* Email Send Button on Success */}
+              {/* Email Send Button */}
               <button
-                onClick={() => handleSendEmailReport()}
-                className="w-full py-2.5 bg-[#673AB7] hover:bg-[#5e35b1] text-white font-bold rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 text-xs cursor-pointer"
+                onClick={() => handleSendEmailReport('stempower26@gmail.com')}
+                className="w-full py-2.5 bg-purple-100 hover:bg-purple-200 text-[#673AB7] font-bold rounded-xl transition-all flex items-center justify-center gap-2 text-xs cursor-pointer border border-purple-200"
               >
                 <Mail className="w-4 h-4" />
-                <span>Yanıtları E-Posta ile Gönder ({targetEmail})</span>
+                <span>E-posta İle Gönder (stempower26@gmail.com)</span>
               </button>
 
               {emailSuccessMsg && (
@@ -377,20 +377,12 @@ export const GoogleFormOnboardingModal: React.FC<GoogleFormOnboardingModalProps>
                 </div>
               )}
 
-              <div className="space-y-2 pt-1">
-                <button
-                  onClick={() => setViewTab('responses')}
-                  className="w-full py-2.5 bg-purple-100 hover:bg-purple-200 text-[#673AB7] font-bold rounded-xl transition-all flex items-center justify-center gap-2 text-xs cursor-pointer"
-                >
-                  <BarChart3 className="w-4 h-4" />
-                  <span>Sonuçları ve Tüm Yanıtları Gör</span>
-                </button>
-
+              <div className="pt-1">
                 <button
                   onClick={handleFinish}
-                  className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl shadow-md transition-all flex items-center justify-center gap-2 text-xs cursor-pointer"
+                  className="w-full py-3 bg-[#673AB7] hover:bg-[#5e35b1] text-white font-bold rounded-xl shadow-md transition-all flex items-center justify-center gap-2 text-xs cursor-pointer"
                 >
-                  <span>Uygulamaya Başla</span>
+                  <span>Uygulamaya Devam Et</span>
                   <ChevronRight className="w-4 h-4" />
                 </button>
               </div>
