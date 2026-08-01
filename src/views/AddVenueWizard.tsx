@@ -506,11 +506,12 @@ export const AddVenueWizard: React.FC<AddVenueWizardProps> = ({ onBack, onSubmit
             <div className="p-4 bg-amber-50 rounded-2xl border border-amber-200 text-left space-y-2 shadow-xs">
               <div className="flex items-center gap-2 text-amber-900 font-extrabold text-xs">
                 <ShieldCheck className="w-4 h-4 text-amber-600" />
-                <span>Geliştirici Onay Süreci Bilgisi</span>
+                <span>Firestore & Onay Süreci Bilgisi</span>
               </div>
-              <p className="text-xs text-amber-800 leading-snug">
-                • Eklediğiniz mekân Google Maps verileriyle eşleştirildi.<br />
-                • Profil sayfanızdaki <strong>"Geliştirici Onay Paneli"</strong> üzerinden başvurunuzu inceleyebilirsiniz.
+              <p className="text-xs text-amber-800 leading-relaxed">
+                • <strong>İki Aşamalı Onay:</strong> Mekân talebiniz doğrudan yayınlanan <code>venues</code> koleksiyonuna değil, onay bekleyen <code>pending_venues</code> koleksiyonuna kaydedildi.<br />
+                • <strong>Firebase Console Kontrolü:</strong> Verinizi Firebase Console'da <code>pending_venues</code> koleksiyonu altında bulabilirsiniz.<br />
+                • Profilinizdeki <strong>"Geliştirici Onay Paneli"</strong> üzerinden başvuruyu onayladığınızda mekân yayına (<code>venues</code>) alınacaktır.
               </p>
             </div>
 

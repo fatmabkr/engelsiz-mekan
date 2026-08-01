@@ -68,6 +68,19 @@ export default function App() {
   const [mapSelectedVenue, setMapSelectedVenue] = useState<Venue | null>(null);
   const [isFirstTimeSurveyOpen, setIsFirstTimeSurveyOpen] = useState(false);
 
+  // Global Toast Notification State (Success / Error / Info)
+  const [toastMessage, setToastMessage] = useState<{
+    text: string;
+    type: 'success' | 'error' | 'info';
+  } | null>(null);
+
+  const showToast = useCallback((text: string, type: 'success' | 'error' | 'info' = 'success') => {
+    setToastMessage({ text, type });
+    setTimeout(() => {
+      setToastMessage(null);
+    }, 6000);
+  }, []);
+
   // ── Back Button Navigation History ──
   const screenHistoryRef = useRef<Screen[]>(['home']);
   const isPopstateNavRef = useRef(false);
@@ -348,7 +361,7 @@ export default function App() {
   };
 
   // Add Review Handler
-  const handleAddReview = (newReview: Partial<Review>) => {
+  const handleAddReview = async (newReview: Partial<Review>) => {
     const rev: Review = {
       id: `rev-${Date.now()}`,
       venueId: newReview.venueId || 'venue-1',
@@ -361,12 +374,19 @@ export default function App() {
       content: newReview.content || '',
       helpfulCount: 0,
     };
-    setReviews([rev, ...reviews]);
-    dbSaveReview(rev).catch(console.error);
+    setReviews((prev) => [rev, ...prev]);
+
+    try {
+      await dbSaveReview(rev);
+      showToast('✓ Yorumunuz başarıyla Firestore reviews koleksiyonuna kaydedildi!', 'success');
+    } catch (err: any) {
+      console.error('Firestore yorum kayıt hatası:', err);
+      showToast(`❌ Firestore Hatası: Yorum kaydedilemedi. (${err?.message || 'İzin reddedildi veya bağlantı hatası'})`, 'error');
+    }
   };
 
   // Add Venue Handler - Requires Developer/Admin Approval
-  const handleAddVenue = (newVenue: Partial<Venue>) => {
+  const handleAddVenue = async (newVenue: Partial<Venue>) => {
     const created: Venue = {
       id: `venue-${Date.now()}`,
       name: newVenue.name || 'Yeni Mekân',
@@ -409,11 +429,18 @@ export default function App() {
 
     // Add to pending approval queue (persisted to Firestore & local state)
     setPendingVenues((prev) => [created, ...prev]);
-    dbSavePendingVenue(created).catch(console.error);
+
+    try {
+      await dbSavePendingVenue(created);
+      showToast('✓ Mekân başvurunuz alındı ve Firestore pending_venues koleksiyonuna kaydedildi!', 'success');
+    } catch (err: any) {
+      console.error('Firestore mekan kayıt hatası:', err);
+      showToast(`❌ Firestore Hatası: Mekân kaydedilemedi. (${err?.message || 'İzin reddedildi veya yetki eksikliği'})`, 'error');
+    }
   };
 
   // Developer Approve Venue Handler
-  const handleApproveVenue = (venueId: string) => {
+  const handleApproveVenue = async (venueId: string) => {
     const target = pendingVenues.find((v) => v.id === venueId);
     if (!target) return;
 
@@ -428,11 +455,18 @@ export default function App() {
     setPendingVenues((prev) => prev.filter((v) => v.id !== venueId));
     setApprovedVenues((prev) => [approved, ...prev]);
     setVenues((prev) => [approved, ...prev]);
-    dbApproveVenue(approved).catch(console.error);
+
+    try {
+      await dbApproveVenue(approved);
+      showToast('✓ Mekân onaylandı ve Firestore "venues" (yayında) koleksiyonuna taşındı!', 'success');
+    } catch (err: any) {
+      console.error('Firestore mekan onaylama hatası:', err);
+      showToast(`❌ Firestore Hatası: Mekân onaylanamadı. (${err?.message || 'Yetki hatası'})`, 'error');
+    }
   };
 
   // Developer Reject Venue Handler
-  const handleRejectVenue = (venueId: string, reason?: string) => {
+  const handleRejectVenue = async (venueId: string, reason?: string) => {
     const target = pendingVenues.find((v) => v.id === venueId);
     if (!target) return;
 
@@ -445,11 +479,18 @@ export default function App() {
 
     setPendingVenues((prev) => prev.filter((v) => v.id !== venueId));
     setRejectedVenues((prev) => [rejected, ...prev]);
-    dbRejectVenue(venueId).catch(console.error);
+
+    try {
+      await dbRejectVenue(venueId);
+      showToast('✓ Mekân başvurusu reddedildi ve pending_venues koleksiyonundan kaldırıldı.', 'success');
+    } catch (err: any) {
+      console.error('Firestore mekan reddetme hatası:', err);
+      showToast(`❌ Firestore Hatası: Mekân reddedilemedi. (${err?.message || 'Yetki hatası'})`, 'error');
+    }
   };
 
   // Add Post Handler
-  const handleAddPost = (newPost: Partial<CommunityPost>) => {
+  const handleAddPost = async (newPost: Partial<CommunityPost>) => {
     const post: CommunityPost = {
       id: `post-${Date.now()}`,
       userId: 'u-me',
@@ -468,8 +509,15 @@ export default function App() {
       statusBadge: '✓ Doğrulandı',
       accessibilityTags: newPost.accessibilityTags || ['♿ Rampa', '🚻 Engelli Tuvaleti'],
     };
-    setPosts([post, ...posts]);
-    dbSavePost(post).catch(console.error);
+    setPosts((prev) => [post, ...prev]);
+
+    try {
+      await dbSavePost(post);
+      showToast('✓ Gönderiniz başarıyla Firestore community_posts koleksiyonuna kaydedildi!', 'success');
+    } catch (err: any) {
+      console.error('Firestore gönderi kayıt hatası:', err);
+      showToast(`❌ Firestore Hatası: Gönderi kaydedilemedi. (${err?.message || 'İzin hatası'})`, 'error');
+    }
   };
 
   // Delete Post Handler
@@ -774,6 +822,32 @@ export default function App() {
       {/* Main Responsive Container: Full screen on mobile devices, sleek mobile frame mockup on desktop/tablets */}
       <div className="w-full sm:max-w-[430px] h-screen sm:h-[880px] sm:max-h-[94vh] bg-[#FAFAFA] relative shadow-2xl flex flex-col overflow-hidden rounded-none sm:rounded-[36px] border-0 sm:border-[6px] sm:border-slate-800">
         
+        {/* Global Toast Notification Banner */}
+        {toastMessage && (
+          <div
+            className={`fixed top-4 left-1/2 -translate-x-1/2 z-[100] max-w-sm w-[90%] p-3.5 rounded-2xl shadow-xl border text-xs font-bold transition-all duration-300 flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-4 ${
+              toastMessage.type === 'success'
+                ? 'bg-slate-900 text-emerald-400 border-emerald-500/40 shadow-emerald-950/30'
+                : toastMessage.type === 'error'
+                ? 'bg-rose-950 text-rose-200 border-rose-600/60 shadow-rose-950/40'
+                : 'bg-slate-900 text-teal-300 border-teal-500/40 shadow-slate-950/30'
+            }`}
+          >
+            <div className="flex items-center gap-2.5">
+              <span className="text-sm shrink-0">
+                {toastMessage.type === 'success' ? '✅' : toastMessage.type === 'error' ? '⚠️' : 'ℹ️'}
+              </span>
+              <p className="leading-snug text-[11px] font-semibold">{toastMessage.text}</p>
+            </div>
+            <button
+              onClick={() => setToastMessage(null)}
+              className="p-1 hover:bg-white/20 rounded-lg text-slate-300 hover:text-white shrink-0 cursor-pointer text-xs"
+            >
+              ✕
+            </button>
+          </div>
+        )}
+
         {/* Scrollable View Container */}
         <div className="flex-1 overflow-y-auto overflow-x-hidden no-scrollbar w-full relative pt-safe">
           {renderCurrentView()}
