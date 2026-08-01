@@ -30,7 +30,7 @@ import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { MapContainer, TileLayer, Marker as LeafletMarker, Popup as LeafletPopup, useMap } from 'react-leaflet';
 
-import localRecordsData from '../data/erisilebilirlik_verileri.json';
+import localRecordsData from '../../public/erisilebilirlik_verileri.json';
 import { MOCK_VENUES } from '../data/mockData';
 import type { Venue, Friend } from '../types';
 import { DirectionsModal } from './DirectionsModal';

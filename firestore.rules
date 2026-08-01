@@ -1,0 +1,49 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Default-deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // Venues Collection (Published)
+    match /venues/{venueId} {
+      allow read: if true;
+      allow create, update, delete: if isSignedIn();
+    }
+
+    // Pending Venues Collection (Awaiting Admin/Dev Approval)
+    match /pending_venues/{venueId} {
+      allow read: if true;
+      allow create: if true;
+      allow update, delete: if true;
+    }
+
+    // Reviews Collection
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow create, update, delete: if true;
+    }
+
+    // Community Posts Collection
+    match /community_posts/{postId} {
+      allow read: if true;
+      allow create, update, delete: if true;
+    }
+
+    // Connection test document
+    match /test/connection {
+      allow read, write: if true;
+    }
+  }
+}

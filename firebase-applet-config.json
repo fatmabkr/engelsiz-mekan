@@ -1,11 +1,12 @@
 {
-  "projectId": "inductive-well-k8t0d",
-  "appId": "1:108443262384:web:7347f9525345de88808a75",
-  "apiKey": "AIzaSyCdH72jUi2xEzda-QRCd_H4apQMrE89pYI",
-  "authDomain": "inductive-well-k8t0d.firebaseapp.com",
-  "storageBucket": "inductive-well-k8t0d.firebasestorage.app",
-  "messagingSenderId": "108443262384",
+  "projectId": "tactical-ion-57c1c",
+  "appId": "1:555583699794:web:1b409d38d231ee7f84d88b",
+  "apiKey": "AIzaSyDt9MAnMsCpqcgC5mzof_i_zjCnxFVsQtw",
+  "authDomain": "tactical-ion-57c1c.firebaseapp.com",
+  "firestoreDatabaseId": "ai-studio-engelsizmekan-bd7e1a1b-5069-4131-9d5d-14f8e7449cba",
+  "storageBucket": "tactical-ion-57c1c.firebasestorage.app",
+  "messagingSenderId": "555583699794",
   "measurementId": "",
-  "oAuthClientId": "108443262384-r1uhd3ca0g1m8euefbte394023eqtk0b.apps.googleusercontent.com",
+  "oAuthClientId": "555583699794-c0u7gbikj0a5qi6jp5b5esfdbvvdvsg6.apps.googleusercontent.com",
   "recaptchaSiteKey": ""
 }

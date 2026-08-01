@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Logo } from '../components/Logo';
 import { 
   ArrowLeft, 
   Sparkles, 
@@ -29,31 +30,29 @@ import { PrimaryButton, SecondaryButton } from '../components/UIElements';
 
 export const SplashView: React.FC<{ onStart: () => void }> = ({ onStart }) => {
   return (
-    <div className="bg-gradient-navy-green-v min-h-screen max-w-md mx-auto flex flex-col items-center justify-between p-8 text-white text-center">
-      <div className="w-full" />
+    <div className="bg-gradient-navy-green-v min-h-screen max-w-md mx-auto flex flex-col items-center justify-between p-6 text-white text-center">
+      <div className="w-full pt-4" />
 
       <div className="space-y-4 animate-in fade-in zoom-in duration-500 flex flex-col items-center">
-        <div className="w-20 h-20 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 flex items-center justify-center shadow-soft-lg">
-          <span className="text-4xl">♿</span>
-        </div>
+        <Logo size={140} className="shadow-2xl ring-4 ring-white/20" />
         <div className="space-y-1">
           <h1 className="text-3xl font-black tracking-tight text-white">YOL AÇIK</h1>
-          <p className="text-xs font-bold text-amber-300 tracking-wider uppercase">Hayata Açılan Engelsiz Yollar</p>
+          <p className="text-xs font-bold text-teal-200 tracking-wider uppercase">Hayatı Kolaylaştıran Dijital Rehber</p>
         </div>
         <p className="text-xs text-teal-100 max-w-xs mx-auto leading-relaxed font-medium">
-          Tekerlekli sandalye kullanıcıları ve hareket kısıtlılığı olan bireyler için erişilebilir mekân keşif platformu.
+          Tekerlekli sandalye kullanıcıları ve hareket kısıtlılığı olan bireyler için erişilebilir mekân keşif ve topluluk platformu.
         </p>
       </div>
 
-      <div className="w-full space-y-3">
+      <div className="w-full space-y-3 pb-6">
         <button
           onClick={onStart}
           className="w-full py-4 bg-white text-[#0F172A] font-black text-sm rounded-[16px] shadow-soft hover:bg-slate-50 active:scale-98 transition-all cursor-pointer flex items-center justify-center gap-2"
         >
-          <span>Keşfetmeye Başla</span>
+          <span>Giriş Yap / Keşfe Başla</span>
           <ArrowRight className="w-4 h-4 text-[#0D9488]" />
         </button>
-        <p className="text-[10px] text-teal-200/80">Eskişehir • Engelsiz Kent Projesi</p>
+        <p className="text-[10px] text-teal-200/80">Eskişehir • Engelsiz Kent Rehberi</p>
       </div>
     </div>
   );
@@ -360,13 +359,13 @@ export const OnboardingView: React.FC<{
       ],
     },
     {
-      badge: '3 / 3 • Saha Topluluğu',
+      badge: '3 / 3 • Engelsiz Topluluk',
       headlinePrefix: 'Topluluk ile ',
       headlineHighlight: 'Paylaşın',
       headlineSuffix: ' 🤝',
-      desc: 'Gerçek tekerlekli sandalye kullanıcılarının fotoğraflı saha deneyimlerini inceleyin, kendi erişilebilirlik notlarınızı ekleyin.',
+      desc: 'Gerçek tekerlekli sandalye kullanıcılarının fotoğraflı deneyimlerini inceleyin, kendi erişilebilirlik notlarınızı ekleyin.',
       features: [
-        { title: 'Doğrulanmış', subtitle: 'Saha Notu', icon: '✓' },
+        { title: 'Doğrulanmış', subtitle: 'Güncel Not', icon: '✓' },
         { title: 'Fotoğraf', subtitle: 'Gerçek Açı', icon: '📷' },
         { title: 'Yorumlar', subtitle: 'Canlı Bilgi', icon: '💬' },
         { title: 'Rozetler', subtitle: 'Gönüllü Katkı', icon: '🎖️' },
@@ -523,7 +522,8 @@ export const LoginView: React.FC<{
   onGoRegister: () => void;
   onGoForgot: () => void;
   onGuestContinue: () => void;
-}> = ({ onLoginSuccess, onGoRegister, onGoForgot, onGuestContinue }) => {
+  onGoLanding?: () => void;
+}> = ({ onLoginSuccess, onGoRegister, onGoForgot, onGuestContinue, onGoLanding }) => {
   const [email, setEmail] = useState('ikra@engelsizmekan.org');
   const [password, setPassword] = useState('******');
   const [showPassword, setShowPassword] = useState(false);
@@ -536,25 +536,47 @@ export const LoginView: React.FC<{
   return (
     <div className="bg-slate-50 min-h-screen max-w-md mx-auto flex flex-col justify-between">
       {/* Top Navy-to-Green Gradient Banner */}
-      <div className="bg-gradient-to-br from-[#0F172A] via-[#0F766E] to-[#059669] p-6 pb-10 text-white rounded-b-[32px] shadow-md text-center space-y-1 flex flex-col items-center">
-        <h2 className="text-2xl font-black tracking-tight text-white">YOL AÇIK</h2>
-        <p className="text-xs text-teal-100 font-medium">Hayata Açılan Engelsiz Yollar • Keşif Rehberi</p>
+      <div className="bg-gradient-to-br from-[#0F172A] via-[#0F766E] to-[#059669] p-6 pb-9 text-white rounded-b-[32px] shadow-md text-center space-y-1.5 flex flex-col items-center relative">
+        {onGoLanding && (
+          <button
+            type="button"
+            onClick={onGoLanding}
+            className="self-start px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer mb-1 border border-white/20"
+          >
+            <ArrowLeft className="w-3.5 h-3.5 text-emerald-300" />
+            <span>Tanıtım Sayfasına Dön</span>
+          </button>
+        )}
+        <h2 className="text-3xl font-black tracking-tight text-white">YOL AÇIK</h2>
+        <p className="text-xs text-teal-100 font-medium">Hayatı Kolaylaştıran Dijital Rehber • Engelsiz Keşif</p>
       </div>
 
       <div className="p-6 -mt-6">
         {/* Main Card Container */}
         <div className="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-soft space-y-5">
-          {/* Guest Login Banner Option */}
+          {/* Guest Login Banner Option & Landing Page Link */}
           <div className="p-3.5 bg-gradient-to-r from-teal-50 to-emerald-50 rounded-2xl border border-teal-200/80 shadow-2xs space-y-2 text-center">
-            <p className="text-xs font-extrabold text-teal-900">Üye olmadan denemek ister misiniz?</p>
-            <button
-              type="button"
-              onClick={onGuestContinue}
-              className="w-full py-2.5 px-4 bg-gradient-to-r from-[#0F172A] to-[#0D9488] text-white font-extrabold text-xs rounded-xl shadow-xs flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-98"
-            >
-              <User className="w-4 h-4 text-teal-100" />
-              <span>Misafir Girişi Yap (Hızlı Keşif)</span>
-            </button>
+            <p className="text-xs font-extrabold text-teal-900">Uygulamayı veya Tanıtım Sayfasını İnceleyin</p>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={onGuestContinue}
+                className="py-2.5 px-3 bg-gradient-to-r from-[#0F172A] to-[#0D9488] text-white font-extrabold text-xs rounded-xl shadow-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-98"
+              >
+                <User className="w-3.5 h-3.5 text-teal-100" />
+                <span>Misafir Girişi</span>
+              </button>
+              {onGoLanding && (
+                <button
+                  type="button"
+                  onClick={onGoLanding}
+                  className="py-2.5 px-3 bg-white border border-teal-600/30 text-teal-800 font-extrabold text-xs rounded-xl shadow-xs flex items-center justify-center gap-1.5 hover:bg-teal-50 transition-all cursor-pointer"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-[#0D9488]" />
+                  <span>Tanıtım Sayfası</span>
+                </button>
+              )}
+            </div>
           </div>
 
           <div className="relative my-2">
@@ -635,14 +657,39 @@ export const LoginView: React.FC<{
   );
 };
 
-export const RegisterView: React.FC<{ onRegisterSuccess: () => void; onGoLogin: () => void }> = ({
+export const RegisterView: React.FC<{ 
+  onRegisterSuccess: () => void; 
+  onGoLogin: () => void;
+  onGoLanding?: () => void;
+}> = ({
   onRegisterSuccess,
   onGoLogin,
+  onGoLanding,
 }) => {
   return (
     <div className="bg-slate-50 min-h-screen max-w-md mx-auto flex flex-col justify-between">
       {/* Top Banner Header */}
-      <div className="bg-gradient-to-br from-[#0F172A] via-[#0F766E] to-[#059669] p-6 pb-10 text-white rounded-b-[32px] shadow-md text-center space-y-1 flex flex-col items-center">
+      <div className="bg-gradient-to-br from-[#0F172A] via-[#0F766E] to-[#059669] p-6 pb-10 text-white rounded-b-[32px] shadow-md text-center space-y-1.5 flex flex-col items-center relative">
+        <div className="w-full flex items-center justify-between mb-1">
+          <button
+            type="button"
+            onClick={onGoLogin}
+            className="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold flex items-center gap-1 transition-colors cursor-pointer border border-white/20"
+          >
+            <ArrowLeft className="w-3.5 h-3.5 text-emerald-300" />
+            <span>Giriş Ekranı</span>
+          </button>
+          {onGoLanding && (
+            <button
+              type="button"
+              onClick={onGoLanding}
+              className="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold flex items-center gap-1 transition-colors cursor-pointer border border-white/20"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-emerald-300" />
+              <span>Tanıtım Sayfası</span>
+            </button>
+          )}
+        </div>
         <h2 className="text-2xl font-black text-white">YOL AÇIK — Kayıt Ol</h2>
         <p className="text-xs text-teal-100 font-medium">Engelsiz topluluğumuza katılın ve mekân katkısında bulunun</p>
       </div>
@@ -760,11 +807,7 @@ export const SettingsView: React.FC<{ onBack: () => void; onOpenGoogleForms?: ()
 };
 
 export const NotificationsView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
-  const notifications = [
-    { id: 1, title: 'Mekân Doğrulandı ✓', text: 'Eklendiğiniz Jardin Coffee saha denetçileri tarafından onaylandı.', time: '10 dk önce' },
-    { id: 2, title: 'Yeni Yorum Yapıldı 💬', text: 'Ayşe Yılmaz Starbucks Kanatlı hakkındaki yorumunuzu faydalı buldu.', time: '2 saat önce' },
-    { id: 3, title: 'Haftalık Erişilebilirlik Raporu', text: 'Eskişehir\'de bu hafta 12 yeni engelsiz mekan eklendi.', time: 'Dün' },
-  ];
+  const notifications: Array<{ id: number; title: string; text: string; time: string }> = [];
 
   return (
     <div className="bg-[#FAFAFA] min-h-screen max-w-md mx-auto space-y-4 pb-20">
@@ -777,15 +820,23 @@ export const NotificationsView: React.FC<{ onBack: () => void }> = ({ onBack }) 
       </div>
 
       <div className="p-4 space-y-3">
-        {notifications.map((n) => (
-          <div key={n.id} className="p-3.5 bg-white rounded-2xl border border-gray-100 shadow-xs space-y-1">
-            <div className="flex items-center justify-between">
-              <h4 className="font-extrabold text-xs text-[#009688]">{n.title}</h4>
-              <span className="text-[10px] text-gray-400">{n.time}</span>
-            </div>
-            <p className="text-xs text-gray-700">{n.text}</p>
+        {notifications.length === 0 ? (
+          <div className="p-8 text-center bg-white rounded-2xl border border-gray-100 shadow-xs space-y-2 mt-4">
+            <Bell className="w-8 h-8 text-slate-300 mx-auto" />
+            <p className="text-sm font-bold text-gray-700">Bildiriminiz Bulunmuyor</p>
+            <p className="text-xs text-gray-500">Yeni erişilebilirlik güncellemeleri ve duyurular burada görünecektir.</p>
           </div>
-        ))}
+        ) : (
+          notifications.map((n) => (
+            <div key={n.id} className="p-3.5 bg-white rounded-2xl border border-gray-100 shadow-xs space-y-1">
+              <div className="flex items-center justify-between">
+                <h4 className="font-extrabold text-xs text-[#009688]">{n.title}</h4>
+                <span className="text-[10px] text-gray-400">{n.time}</span>
+              </div>
+              <p className="text-xs text-gray-700">{n.text}</p>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );

@@ -12,7 +12,8 @@ import {
   ShieldCheck, 
   Award, 
   ChevronRight,
-  Sparkles
+  Sparkles,
+  FileText
 } from 'lucide-react';
 import { Venue, Review, AccessibilityPreferences } from '../types';
 import { ProfileStatCard } from '../components/UIElements';
@@ -27,6 +28,7 @@ interface ProfileViewProps {
   userName?: string;
   userAvatar?: string;
   userBadge?: string;
+  pendingCount?: number;
   onOpenPreferences: () => void;
   onOpenSettings: () => void;
   onOpenNotifications: () => void;
@@ -34,6 +36,9 @@ interface ProfileViewProps {
   onSelectVenue: (v: Venue) => void;
   onLogout: () => void;
   onOpenOnboarding?: () => void;
+  onOpenFirstTimeSurvey?: () => void;
+  onOpenAdminApproval?: () => void;
+  onOpenLanding?: () => void;
 }
 
 export const ProfileView: React.FC<ProfileViewProps> = ({
@@ -44,6 +49,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   userName = 'Kullanıcı',
   userAvatar = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80',
   userBadge = 'Engelsiz Üye',
+  pendingCount = 0,
   onOpenPreferences,
   onOpenSettings,
   onOpenNotifications,
@@ -51,6 +57,9 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   onSelectVenue,
   onLogout,
   onOpenOnboarding,
+  onOpenFirstTimeSurvey,
+  onOpenAdminApproval,
+  onOpenLanding,
 }) => {
   const [activeTab, setActiveTab] = useState<'favorites' | 'reviews' | 'my_venues'>('favorites');
 
@@ -233,8 +242,50 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
         </div>
       </div>
 
-      {/* Onboarding & Logout Actions */}
+      {/* Onboarding, Admin & Logout Actions */}
       <div className="px-4 pt-2 space-y-2">
+        {onOpenAdminApproval && (
+          <button
+            onClick={onOpenAdminApproval}
+            className="w-full py-3.5 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl text-xs font-black flex items-center justify-between px-4 shadow-soft transition-colors cursor-pointer border border-slate-700"
+          >
+            <div className="flex items-center gap-2.5">
+              <ShieldCheck className="w-5 h-5 text-emerald-400 shrink-0" />
+              <div className="text-left">
+                <span className="block font-black text-xs text-white">Geliştirici Onay Paneli</span>
+                <span className="block text-[10px] text-slate-300 font-medium">Mekân Başvurularını İncele & Onayla</span>
+              </div>
+            </div>
+            {pendingCount > 0 ? (
+              <span className="px-2.5 py-1 bg-amber-500 text-slate-950 rounded-full text-[11px] font-black animate-bounce">
+                {pendingCount} Bekliyor
+              </span>
+            ) : (
+              <ChevronRight className="w-4 h-4 text-slate-400" />
+            )}
+          </button>
+        )}
+
+        {onOpenFirstTimeSurvey && (
+          <button
+            onClick={onOpenFirstTimeSurvey}
+            className="w-full py-3 bg-purple-50 hover:bg-purple-100 text-[#673AB7] rounded-2xl text-xs font-extrabold flex items-center justify-center gap-2 border border-purple-100 transition-colors cursor-pointer"
+          >
+            <FileText className="w-4 h-4 text-[#673AB7]" />
+            <span>İlk Kullanım Anketi (Google Form)</span>
+          </button>
+        )}
+
+        {onOpenLanding && (
+          <button
+            onClick={onOpenLanding}
+            className="w-full py-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded-2xl text-xs font-black flex items-center justify-center gap-2 border border-emerald-200 transition-colors cursor-pointer"
+          >
+            <Sparkles className="w-4 h-4 text-[#0D9488]" />
+            <span>Uygulama Tanıtım Sayfası (Landing Page)</span>
+          </button>
+        )}
+
         {onOpenOnboarding && (
           <button
             onClick={onOpenOnboarding}

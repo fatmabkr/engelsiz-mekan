@@ -16,7 +16,8 @@ import {
   Info,
   Navigation,
   Phone,
-  Clock
+  Clock,
+  Calendar
 } from 'lucide-react';
 import { Venue, FeatureStatus, AccessibilityFeatureId } from '../types';
 import { AccessibilityScore, VerifiedBadge, RatingStars } from './UIElements';
@@ -35,10 +36,10 @@ export const VenueCard: React.FC<VenueCardProps> = ({ venue, onClick, onToggleFa
   return (
     <div
       onClick={onClick}
-      className="bg-white rounded-[18px] border border-slate-100 shadow-[0_4px_12px_rgba(0,0,0,0.05)] overflow-hidden hover:shadow-soft-lg hover:border-teal-200 transition-all duration-200 cursor-pointer group flex flex-col h-full"
+      className="bg-white rounded-[16px] border border-slate-100 shadow-[0_4px_12px_rgba(0,0,0,0.05)] overflow-hidden hover:shadow-soft-lg hover:border-teal-200 transition-all duration-200 cursor-pointer group flex flex-col h-full"
     >
       {/* Cover Image & Overlays */}
-      <div className="relative h-40 w-full bg-slate-100 overflow-hidden">
+      <div className="relative h-28 sm:h-36 w-full bg-slate-100 overflow-hidden">
         <img
           src={venue.coverImage}
           alt={venue.name}
@@ -48,69 +49,72 @@ export const VenueCard: React.FC<VenueCardProps> = ({ venue, onClick, onToggleFa
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/20" />
 
         {/* Top Badges */}
-        <div className="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none">
+        <div className="absolute top-2 left-2 right-2 flex items-center justify-between pointer-events-none">
           {venue.isVerified ? (
-            <span className="bg-gradient-to-r from-[#0F172A] to-[#0D9488] text-white text-[11px] font-bold px-2.5 py-1 rounded-lg shadow-xs flex items-center gap-1">
+            <span className="bg-gradient-to-r from-[#0F172A] to-[#0D9488] text-white text-[10px] font-bold px-2 py-0.5 rounded-md shadow-xs flex items-center gap-1">
               ✓ Doğrulandı
             </span>
           ) : (
-            <span className="bg-white/90 backdrop-blur-md text-slate-800 text-[11px] font-bold px-2.5 py-1 rounded-lg shadow-xs">
+            <span className="bg-white/90 backdrop-blur-md text-slate-800 text-[10px] font-bold px-2 py-0.5 rounded-md shadow-xs">
               {venue.categoryLabel}
             </span>
           )}
 
           <button
             onClick={onToggleFavorite}
-            className="pointer-events-auto w-8 h-8 rounded-full bg-white/90 backdrop-blur-md flex items-center justify-center text-slate-700 hover:text-rose-500 shadow-sm transition-transform active:scale-90 cursor-pointer"
+            className="pointer-events-auto w-7 h-7 rounded-full bg-white/90 backdrop-blur-md flex items-center justify-center text-slate-700 hover:text-rose-500 shadow-xs transition-transform active:scale-90 cursor-pointer"
             aria-label="Favorilere ekle"
           >
-            <Heart className={`w-4 h-4 ${venue.isFavorite ? 'fill-rose-500 text-rose-500' : ''}`} />
+            <Heart className={`w-3.5 h-3.5 ${venue.isFavorite ? 'fill-rose-500 text-rose-500' : ''}`} />
           </button>
         </div>
       </div>
 
       {/* Card Details */}
-      <div className="p-4 flex-1 flex flex-col justify-between space-y-2">
+      <div className="p-2.5 sm:p-3 flex-1 flex flex-col justify-between space-y-1.5">
         <div>
           {/* Title & Circle Score Header */}
-          <div className="flex items-start justify-between gap-2">
-            <div>
-              <h3 className="font-extrabold text-base text-[#0F172A] group-hover:text-[#0D9488] transition-colors line-clamp-1">
+          <div className="flex items-start justify-between gap-1.5">
+            <div className="min-w-0 flex-1">
+              <h3 className="font-extrabold text-xs sm:text-sm text-[#0F172A] group-hover:text-[#0D9488] transition-colors truncate">
                 {venue.name}
               </h3>
-              <p className="text-xs text-slate-500 font-medium mt-0.5">
+              <p className="text-[10px] sm:text-xs text-slate-500 font-medium truncate mt-0.5">
                 {venue.categoryLabel} • {venue.distanceKm} km
               </p>
             </div>
-            <AccessibilityScore score={venue.accessibilityScore} size="md" variant="circle" showLabel={false} />
+            <AccessibilityScore score={venue.accessibilityScore} size="sm" variant="circle" showLabel={false} />
           </div>
 
           {/* Rating */}
-          <div className="mt-1.5 flex items-center gap-2">
-            <RatingStars rating={venue.rating} count={venue.reviewCount} size={14} />
+          <div className="mt-1 flex items-center gap-1.5">
+            <RatingStars rating={venue.rating} count={venue.reviewCount} size={12} />
           </div>
         </div>
 
-        {/* Feature Tags Row */}
-        <div className="pt-2 border-t border-slate-100 flex items-center gap-1.5 flex-wrap text-[11px]">
-          {venue.features.rampa === 'mevcut' && (
-            <span className="px-2 py-0.5 bg-[#F3F4F6] text-[#6B7280] rounded-[6px] font-semibold flex items-center gap-1">
-              ♿ Rampa
-            </span>
-          )}
-          {venue.features.engelli_tuvaleti === 'mevcut' && (
-            <span className="px-2 py-0.5 bg-[#F3F4F6] text-[#6B7280] rounded-[6px] font-semibold flex items-center gap-1">
-              🚻 Tuvalet
-            </span>
-          )}
-          {venue.features.asansor === 'mevcut' && (
-            <span className="px-2 py-0.5 bg-[#F3F4F6] text-[#6B7280] rounded-[6px] font-semibold flex items-center gap-1">
-              🛗 Asansör
-            </span>
-          )}
-          {venue.features.tek_kat === 'mevcut' && (
-            <span className="px-2 py-0.5 bg-[#F3F4F6] text-[#6B7280] rounded-[6px] font-semibold flex items-center gap-1">
-              🚪 Geniş Kapı
+        {/* Feature Tags Row & Last Updated Date */}
+        <div className="pt-1.5 border-t border-slate-100 flex items-center justify-between gap-1 text-[10px] flex-wrap">
+          <div className="flex items-center gap-1 flex-wrap">
+            {venue.features.rampa === 'mevcut' && (
+              <span className="px-1.5 py-0.5 bg-[#F3F4F6] text-[#6B7280] rounded font-semibold flex items-center gap-0.5">
+                ♿ Rampa
+              </span>
+            )}
+            {venue.features.engelli_tuvaleti === 'mevcut' && (
+              <span className="px-1.5 py-0.5 bg-[#F3F4F6] text-[#6B7280] rounded font-semibold flex items-center gap-0.5">
+                🚻 Tuvalet
+              </span>
+            )}
+            {venue.features.asansor === 'mevcut' && (
+              <span className="px-1.5 py-0.5 bg-[#F3F4F6] text-[#6B7280] rounded font-semibold flex items-center gap-0.5">
+                🛗 Asansör
+              </span>
+            )}
+          </div>
+          {(venue.lastUpdatedDate || venue.verifiedDate) && (
+            <span className="text-[9px] text-slate-400 font-medium flex items-center gap-0.5 ml-auto">
+              <Calendar className="w-2.5 h-2.5 text-slate-400" />
+              <span>Günd: {venue.lastUpdatedDate || venue.verifiedDate}</span>
             </span>
           )}
         </div>

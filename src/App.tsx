@@ -36,7 +36,21 @@ import { CommunityView } from './views/CommunityView';
 import { ChatView } from './views/ChatView';
 import { ProfileView } from './views/ProfileView';
 import { GoogleFormsView } from './views/GoogleFormsView';
+import { GoogleFormOnboardingModal } from './components/GoogleFormOnboardingModal';
 import { AccessibilityPreferencesView } from './views/AccessibilityPreferencesView';
+import { AdminApprovalModal } from './views/AdminApprovalModal';
+import { LandingView } from './views/LandingView';
+import { 
+  subscribeToVenues, 
+  subscribeToPendingVenues, 
+  subscribeToReviews, 
+  subscribeToPosts, 
+  dbSavePendingVenue, 
+  dbApproveVenue, 
+  dbRejectVenue, 
+  dbSaveReview, 
+  dbSavePost 
+} from './lib/firebaseSync';
 import { 
   SplashView, 
   OnboardingView, 
@@ -47,22 +61,105 @@ import {
 } from './views/AuthAndInfoViews';
 
 export default function App() {
-  // Navigation State
-  const [currentScreen, setCurrentScreen] = useState<Screen>('home');
+  // Navigation State - Defaults to 'landing' so app opens on landing introduction page
+  const [currentScreen, setCurrentScreen] = useState<Screen>('landing');
   const [selectedVenue, setSelectedVenue] = useState<Venue | null>(null);
   const [mapSelectedVenue, setMapSelectedVenue] = useState<Venue | null>(null);
+  const [isFirstTimeSurveyOpen, setIsFirstTimeSurveyOpen] = useState(true);
+
+  const handleLoginSuccess = () => {
+    setCurrentScreen('home');
+    setIsFirstTimeSurveyOpen(true);
+  };
 
   // App Data State
-  const [venues, setVenues] = useState<Venue[]>(MOCK_VENUES);
+  const [venues, setVenues] = useState<Venue[]>(() => 
+    MOCK_VENUES.filter((v) => !v.name.toLowerCase().includes('gibi'))
+  );
   const [reviews, setReviews] = useState<Review[]>(MOCK_REVIEWS);
   const [posts, setPosts] = useState<CommunityPost[]>(MOCK_COMMUNITY_POSTS);
   const [friends, setFriends] = useState<Friend[]>([]);
   const [preferences, setPreferences] = useState<AccessibilityPreferences>(INITIAL_PREFERENCES);
 
+  // Developer / Admin Approval State for venue submission approval workflow
+  const [pendingVenues, setPendingVenues] = useState<Venue[]>(() => {
+    const saved = localStorage.getItem('yol_acik_pending_venues');
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) { console.error(e); }
+    }
+    // Initial sample pending venue for testing developer approval
+    return [
+      {
+        id: 'venue-pending-sample-1',
+        name: 'Simit Sarayı Adalar Şubesi',
+        category: 'kafe',
+        categoryLabel: 'Kafe',
+        address: 'İsmet İnönü-1 Cad. Adalar Mevkii No:44, Tepebaşı / Eskişehir',
+        district: 'Tepebaşı',
+        city: 'Eskişehir',
+        distanceKm: 0.4,
+        rating: 4.8,
+        reviewCount: 1,
+        accessibilityScore: 88,
+        accessibilityLevel: 'high',
+        isVerified: false,
+        isFavorite: false,
+        coverImage: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=800&q=80',
+        images: ['https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=800&q=80'],
+        phone: '0222 221 44 55',
+        openingHours: '08:00 - 23:00',
+        coordinates: { lat: 39.7765, lng: 30.5145 },
+        googleMapsUrl: 'https://maps.google.com/?q=Simit+Sarayı+Adalar+Eskişehir',
+        features: {
+          kaldirim: 'mevcut',
+          rampa: 'mevcut',
+          kapilar: 'mevcut',
+          koridorlar: 'mevcut',
+          merdiven: 'mevcut',
+          asansor: 'bilgi_yok',
+          tek_kat: 'mevcut',
+          engelli_tuvaleti: 'mevcut',
+          bilgilendirme: 'bilgi_yok',
+        },
+        description: 'Tekerlekli sandalye ile giriş rampası ve geniş masalar mevcut. Tuvalet zemin katta.',
+        tags: ['Kullanıcı Katkısı', 'Harita Doğrulanmış'],
+        approvalStatus: 'pending',
+        isApproved: false,
+        submittedAt: '30 Temmuz 2026',
+        submittedBy: 'Ayşe Yılmaz'
+      }
+    ];
+  });
+  const [approvedVenues, setApprovedVenues] = useState<Venue[]>([]);
+  const [rejectedVenues, setRejectedVenues] = useState<Venue[]>([]);
+  const [isAdminApprovalOpen, setIsAdminApprovalOpen] = useState<boolean>(false);
+
   React.useEffect(() => {
-    setPosts(MOCK_COMMUNITY_POSTS);
-    setVenues(MOCK_VENUES);
+    // Subscribe to Firestore collections
+    const unsubVenues = subscribeToVenues((remoteVenues) => {
+      setVenues(remoteVenues);
+    });
+    const unsubPending = subscribeToPendingVenues((remotePending) => {
+      setPendingVenues(remotePending);
+    });
+    const unsubReviews = subscribeToReviews((remoteReviews) => {
+      setReviews(remoteReviews);
+    });
+    const unsubPosts = subscribeToPosts((remotePosts) => {
+      setPosts(remotePosts);
+    });
+
+    return () => {
+      unsubVenues();
+      unsubPending();
+      unsubReviews();
+      unsubPosts();
+    };
   }, []);
+
+  React.useEffect(() => {
+    localStorage.setItem('yol_acik_pending_venues', JSON.stringify(pendingVenues));
+  }, [pendingVenues]);
 
   // ESKİŞEHİR KNOWN LOCATIONS DICTIONARY
   const getEskisehirCoords = (locationStr: string) => {
@@ -146,9 +243,10 @@ export default function App() {
       helpfulCount: 0,
     };
     setReviews([rev, ...reviews]);
+    dbSaveReview(rev).catch(console.error);
   };
 
-  // Add Venue Handler
+  // Add Venue Handler - Requires Developer/Admin Approval
   const handleAddVenue = (newVenue: Partial<Venue>) => {
     const created: Venue = {
       id: `venue-${Date.now()}`,
@@ -158,18 +256,19 @@ export default function App() {
       address: newVenue.address || 'Eskişehir',
       district: newVenue.district || 'Tepebaşı',
       city: 'Eskişehir',
-      distanceKm: 0.6,
+      distanceKm: newVenue.distanceKm || 0.6,
       rating: 5.0,
       reviewCount: 1,
       accessibilityScore: newVenue.accessibilityScore || 85,
       accessibilityLevel: (newVenue.accessibilityScore || 85) >= 80 ? 'high' : 'medium',
       isVerified: false,
-      isFavorite: true,
+      isFavorite: false,
       coverImage: newVenue.coverImage || 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=800&q=80',
       images: newVenue.images || [],
       phone: newVenue.phone || '0222 000 00 00',
       openingHours: '09:00 - 22:00',
-      coordinates: { lat: 39.778, lng: 30.512 },
+      coordinates: newVenue.coordinates || { lat: 39.778, lng: 30.512 },
+      googleMapsUrl: newVenue.googleMapsUrl || `https://maps.google.com/?q=${encodeURIComponent((newVenue.name || 'Mekan') + ' Eskişehir')}`,
       features: newVenue.features || {
         kaldirim: 'mevcut',
         rampa: 'mevcut',
@@ -181,11 +280,53 @@ export default function App() {
         engelli_tuvaleti: 'mevcut',
         bilgilendirme: 'bilgi_yok',
       },
-      description: newVenue.description || 'Eskişehir engelsiz mekân.',
-      tags: ['Kullanıcı Katkısı']
+      description: newVenue.description || 'Kullanıcı tarafından eklenen yeni erişilebilir mekan.',
+      tags: ['Kullanıcı Katkısı', 'Harita Doğrulanmış'],
+      approvalStatus: 'pending',
+      isApproved: false,
+      submittedAt: '30 Temmuz 2026',
+      submittedBy: 'Mevcut Kullanıcı'
     };
 
-    setVenues([created, ...venues]);
+    // Add to pending approval queue (persisted to Firestore & local state)
+    setPendingVenues((prev) => [created, ...prev]);
+    dbSavePendingVenue(created).catch(console.error);
+  };
+
+  // Developer Approve Venue Handler
+  const handleApproveVenue = (venueId: string) => {
+    const target = pendingVenues.find((v) => v.id === venueId);
+    if (!target) return;
+
+    const approved: Venue = {
+      ...target,
+      approvalStatus: 'approved',
+      isApproved: true,
+      isVerified: true,
+      verifiedBy: 'Geliştirici (Admin)',
+    };
+
+    setPendingVenues((prev) => prev.filter((v) => v.id !== venueId));
+    setApprovedVenues((prev) => [approved, ...prev]);
+    setVenues((prev) => [approved, ...prev]);
+    dbApproveVenue(approved).catch(console.error);
+  };
+
+  // Developer Reject Venue Handler
+  const handleRejectVenue = (venueId: string, reason?: string) => {
+    const target = pendingVenues.find((v) => v.id === venueId);
+    if (!target) return;
+
+    const rejected: Venue = {
+      ...target,
+      approvalStatus: 'rejected',
+      isApproved: false,
+      rejectionReason: reason || 'Geliştirici tarafından reddedildi.',
+    };
+
+    setPendingVenues((prev) => prev.filter((v) => v.id !== venueId));
+    setRejectedVenues((prev) => [rejected, ...prev]);
+    dbRejectVenue(venueId).catch(console.error);
   };
 
   // Add Post Handler
@@ -209,6 +350,7 @@ export default function App() {
       accessibilityTags: newPost.accessibilityTags || ['♿ Rampa', '🚻 Engelli Tuvaleti'],
     };
     setPosts([post, ...posts]);
+    dbSavePost(post).catch(console.error);
   };
 
   // Delete Post Handler
@@ -257,6 +399,14 @@ export default function App() {
 
     // 2. Main Screen Router
     switch (currentScreen) {
+      case 'landing':
+        return (
+          <LandingView 
+            onStartApp={(targetScreen = 'home') => setCurrentScreen(targetScreen)}
+            featuredVenues={venues}
+          />
+        );
+
       case 'splash':
         return <SplashView onStart={() => setCurrentScreen('onboarding')} />;
 
@@ -264,25 +414,27 @@ export default function App() {
         return (
           <OnboardingView
             onComplete={() => setCurrentScreen('login')}
-            onGuestAccess={() => setCurrentScreen('home')}
+            onGuestAccess={handleLoginSuccess}
           />
         );
 
       case 'login':
         return (
           <LoginView
-            onLoginSuccess={() => setCurrentScreen('home')}
+            onLoginSuccess={handleLoginSuccess}
             onGoRegister={() => setCurrentScreen('register')}
             onGoForgot={() => alert('Şifre sıfırlama e-postası gönderildi.')}
-            onGuestContinue={() => setCurrentScreen('home')}
+            onGuestContinue={handleLoginSuccess}
+            onGoLanding={() => setCurrentScreen('landing')}
           />
         );
 
       case 'register':
         return (
           <RegisterView
-            onRegisterSuccess={() => setCurrentScreen('home')}
+            onRegisterSuccess={handleLoginSuccess}
             onGoLogin={() => setCurrentScreen('login')}
+            onGoLanding={() => setCurrentScreen('landing')}
           />
         );
 
@@ -398,6 +550,7 @@ export default function App() {
             favoriteVenues={favoriteVenues}
             myReviews={reviews}
             preferences={preferences}
+            pendingCount={pendingVenues.length}
             onOpenPreferences={() => setCurrentScreen('accessibility_preferences')}
             onOpenSettings={() => setCurrentScreen('settings')}
             onOpenNotifications={() => setCurrentScreen('notifications')}
@@ -405,6 +558,9 @@ export default function App() {
             onSelectVenue={handleOpenDetail}
             onLogout={() => setCurrentScreen('login')}
             onOpenOnboarding={() => setCurrentScreen('onboarding')}
+            onOpenFirstTimeSurvey={() => setIsFirstTimeSurveyOpen(true)}
+            onOpenAdminApproval={() => setIsAdminApprovalOpen(true)}
+            onOpenLanding={() => setCurrentScreen('landing')}
           />
         );
 
@@ -448,10 +604,14 @@ export default function App() {
   const showBottomNav = ['home', 'explore', 'search', 'map', 'community', 'profile'].includes(currentScreen);
 
   return (
-    <div className="min-h-screen bg-slate-900 font-sans text-slate-900 flex flex-col items-center justify-start antialiased py-0 sm:py-6">
-      {/* Main Mobile Frame Container */}
-      <div className="w-full max-w-md bg-[#FAFAFA] min-h-screen relative shadow-2xl flex flex-col overflow-x-hidden rounded-none sm:rounded-[32px]">
-        {renderCurrentView()}
+    <div className="min-h-screen bg-[#0B1329] font-sans text-slate-900 flex flex-col items-center justify-center p-0 sm:py-4 antialiased selection:bg-teal-500 selection:text-white">
+      {/* Main Mobile Frame Shell */}
+      <div className="w-full max-w-[430px] h-screen sm:h-[880px] sm:max-h-[94vh] bg-[#FAFAFA] relative shadow-2xl flex flex-col overflow-hidden rounded-none sm:rounded-[36px] sm:border-[6px] sm:border-slate-800">
+        
+        {/* Scrollable View Container */}
+        <div className="flex-1 overflow-y-auto overflow-x-hidden no-scrollbar w-full relative">
+          {renderCurrentView()}
+        </div>
 
         {/* Global Bottom Navigation Bar */}
         {showBottomNav && (
@@ -461,6 +621,26 @@ export default function App() {
             onAddVenueClick={() => setCurrentScreen('add_venue')}
           />
         )}
+
+        {/* Global Developer/Admin Approval Modal */}
+        <AdminApprovalModal
+          isOpen={isAdminApprovalOpen}
+          onClose={() => setIsAdminApprovalOpen(false)}
+          pendingVenues={pendingVenues}
+          approvedVenues={approvedVenues}
+          rejectedVenues={rejectedVenues}
+          onApproveVenue={handleApproveVenue}
+          onRejectVenue={handleRejectVenue}
+        />
+
+        {/* Global Google Form Onboarding Modal for First Time Users (Shown after leaving landing page) */}
+        <GoogleFormOnboardingModal
+          isOpen={isFirstTimeSurveyOpen && currentScreen !== 'landing'}
+          onClose={() => setIsFirstTimeSurveyOpen(false)}
+          onComplete={(answers) => {
+            console.log('Google Form onboarding answers submitted:', answers);
+          }}
+        />
 
         {/* Global Filters Bottom Sheet Drawer Modal */}
         <FiltersBottomSheet

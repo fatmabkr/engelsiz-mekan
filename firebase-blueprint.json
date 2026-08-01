@@ -1,0 +1,83 @@
+{
+  "entities": {
+    "Venue": {
+      "title": "Venue",
+      "description": "Accessible venue record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string", "maxLength": 150 },
+        "category": { "type": "string" },
+        "categoryLabel": { "type": "string" },
+        "address": { "type": "string", "maxLength": 300 },
+        "district": { "type": "string" },
+        "city": { "type": "string" },
+        "rating": { "type": "number" },
+        "reviewCount": { "type": "number" },
+        "accessibilityScore": { "type": "number" },
+        "accessibilityLevel": { "type": "string" },
+        "isVerified": { "type": "boolean" },
+        "coverImage": { "type": "string" },
+        "phone": { "type": "string" },
+        "openingHours": { "type": "string" },
+        "googleMapsUrl": { "type": "string" },
+        "description": { "type": "string", "maxLength": 1000 },
+        "approvalStatus": { "type": "string" },
+        "isApproved": { "type": "boolean" },
+        "submittedAt": { "type": "string" },
+        "submittedBy": { "type": "string" }
+      },
+      "required": ["name", "category", "address"]
+    },
+    "Review": {
+      "title": "Review",
+      "description": "Venue review entry",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "venueId": { "type": "string" },
+        "venueName": { "type": "string" },
+        "userName": { "type": "string" },
+        "rating": { "type": "number" },
+        "date": { "type": "string" },
+        "text": { "type": "string", "maxLength": 1000 },
+        "likes": { "type": "number" }
+      },
+      "required": ["venueId", "userName", "rating", "text"]
+    },
+    "CommunityPost": {
+      "title": "CommunityPost",
+      "description": "Community forum post",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "authorName": { "type": "string" },
+        "authorRole": { "type": "string" },
+        "title": { "type": "string", "maxLength": 200 },
+        "content": { "type": "string", "maxLength": 2000 },
+        "timestamp": { "type": "string" },
+        "category": { "type": "string" },
+        "likes": { "type": "number" }
+      },
+      "required": ["authorName", "title", "content"]
+    }
+  },
+  "firestore": {
+    "/venues/{venueId}": {
+      "schema": { "$ref": "#/entities/Venue" },
+      "description": "Published accessible venues"
+    },
+    "/pending_venues/{venueId}": {
+      "schema": { "$ref": "#/entities/Venue" },
+      "description": "Venues pending developer approval"
+    },
+    "/reviews/{reviewId}": {
+      "schema": { "$ref": "#/entities/Review" },
+      "description": "Venue reviews"
+    },
+    "/community_posts/{postId}": {
+      "schema": { "$ref": "#/entities/CommunityPost" },
+      "description": "Community discussion posts"
+    }
+  }
+}

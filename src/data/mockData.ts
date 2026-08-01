@@ -281,98 +281,60 @@ function getMatchedImages(name: string, categoryLabel: string, category: string)
 
   // Exact Place Overrides
   if (n.includes('sağlık pide') || n.includes('saglik pide')) {
-    return [
-      '/images/saglik_pide.jpg',
-      'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1590846406792-0adc7f938f1d?auto=format&fit=crop&w=800&q=80'
-    ];
+    return ['/images/saglik_pide.jpg'];
   }
 
   if (n.includes('dodos')) {
-    return [
-      '/images/dodos_doner.jpg',
-      'https://images.unsplash.com/photo-1662116765994-1e4200c43589?auto=format&fit=crop&w=800&q=80'
-    ];
+    return ['/images/dodos_doner.jpg'];
   }
 
   // Pide & Kebap & Lahmacun
   if (n.includes('pide') || c.includes('pide') || n.includes('kebap') || c.includes('kebap') || n.includes('lahmacun') || c.includes('lahmacun')) {
-    return [
-      '/images/saglik_pide.jpg',
-      'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80'
-    ];
+    return ['/images/saglik_pide.jpg'];
   }
 
   // Pizza
   if (n.includes('pizza') || c.includes('pizza') || n.includes('caesars')) {
-    return [
-      'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=800&q=80'
-    ];
+    return ['https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=800&q=80'];
   }
 
   // Burger & Fried Chicken
   if (n.includes('burger') || c.includes('burger') || n.includes('hippo') || n.includes('chicken') || n.includes('popeyes') || n.includes('pino')) {
-    return [
-      'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=800&q=80'
-    ];
+    return ['https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=800&q=80'];
   }
 
   // Döner & Tantuni & Wrap
   if (n.includes('döner') || c.includes('döner') || n.includes('doner') || n.includes('tantuni') || c.includes('tantuni')) {
-    return [
-      'https://images.unsplash.com/photo-1662116765994-1e4200c43589?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1561758033-d89a9ad46330?auto=format&fit=crop&w=800&q=80'
-    ];
+    return ['/images/dodos_doner.jpg'];
   }
 
   // Köfte & Meatballs & Grill
   if (n.includes('köfte') || c.includes('köfte') || n.includes('yusuf') || n.includes('mangal') || n.includes('ocakbaşı')) {
-    return [
-      'https://images.unsplash.com/photo-1529042410759-befb1204b468?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=800&q=80'
-    ];
+    return ['https://images.unsplash.com/photo-1529042410759-befb1204b468?auto=format&fit=crop&w=800&q=80'];
   }
 
   // Bakery, Desserts, Sweets, Baklava, Helva, Waffle, Donut
   if (n.includes('baklava') || n.includes('helva') || n.includes('pastane') || n.includes('tatlı') || c.includes('tatlı') || n.includes('waffle') || n.includes('donut') || n.includes('künefe') || n.includes('ekler') || n.includes('choco')) {
-    return [
-      'https://images.unsplash.com/photo-1587314168485-3236d6710814?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=800&q=80'
-    ];
+    return ['https://images.unsplash.com/photo-1587314168485-3236d6710814?auto=format&fit=crop&w=800&q=80'];
   }
 
   // Museum & Art & Culture
   if (n.includes('müze') || c.includes('müze') || category === 'muze') {
-    return [
-      'https://images.unsplash.com/photo-1518998053901-5348d3961a04?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1565008447742-97f6f38c985c?auto=format&fit=crop&w=800&q=80'
-    ];
+    return ['https://images.unsplash.com/photo-1518998053901-5348d3961a04?auto=format&fit=crop&w=800&q=80'];
   }
 
   // AVM & Shopping Mall
   if (n.includes('espark') || n.includes('avm') || category === 'avm') {
-    return [
-      'https://images.unsplash.com/photo-1519567241046-7f570eee3ce6?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1567449303078-57ad995bd301?auto=format&fit=crop&w=800&q=80'
-    ];
+    return ['https://images.unsplash.com/photo-1519567241046-7f570eee3ce6?auto=format&fit=crop&w=800&q=80'];
   }
 
   // Park & Open Air
   if (n.includes('park') || category === 'park' || n.includes('bahçe')) {
-    return [
-      'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80'
-    ];
+    return ['https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80'];
   }
 
   // Default Coffee & Cafe
-  return [
-    'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=800&q=80'
-  ];
+  return ['https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=800&q=80'];
 }
 
 function buildVenueFromSurvey(item: SurveyItem, index: number): Venue {
@@ -408,8 +370,9 @@ function buildVenueFromSurvey(item: SurveyItem, index: number): Venue {
     accessibilityScore: score,
     accessibilityLevel: level,
     isVerified: true,
-    verifiedBy: 'Yol Açık Saha Ekibi (STEM)',
-    verifiedDate: 'Temmuz 2026',
+    verifiedBy: 'Yol Açık Ekibi',
+    verifiedDate: '28 Temmuz 2026',
+    lastUpdatedDate: `${Math.max(1, 28 - (index % 20))} Temmuz 2026`,
     isFavorite: index % 5 === 0,
     coverImage,
     images,
@@ -437,219 +400,18 @@ function buildVenueFromSurvey(item: SurveyItem, index: number): Venue {
       rampa: item.rampa ? 'Tekerlekli sandalye eğimine uygun rampa mevcut.' : 'Sabit rampa bulunmuyor.',
       engelli_tuvaleti: item.engelliTuvaleti ? 'Özel erişilebilir lavabo mevcut.' : 'Engelli lavabosu bulunmuyor.',
     },
-    description: `${item.address} adresinde yer alan ${item.name}, Yol Açık Projesi kapsamında sahada incelenerek erişilebilirlik verileri haritaya eklenmiştir.`,
+    description: `${item.address} adresinde yer alan ${item.name}, Yol Açık Rehberi kapsamında erişilebilirlik bilgileriyle haritaya eklenmiştir.`,
     tags
   };
 }
 
-export const MOCK_VENUES: Venue[] = RAW_SURVEY_DATA.map((item, idx) => buildVenueFromSurvey(item, idx));
+export const MOCK_VENUES: Venue[] = RAW_SURVEY_DATA
+  .filter((item) => !item.name.toLowerCase().includes('gibi'))
+  .map((item, idx) => buildVenueFromSurvey(item, idx));
 
-export const MOCK_REVIEWS: Review[] = [
-  {
-    id: 'rev-sp-1',
-    venueId: 'v-1',
-    userName: 'Burak Öztürk',
-    userAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80',
-    userBadge: 'Yerel Rehber (Level 6)',
-    rating: 5,
-    accessibilityRating: 5,
-    date: '12 Temmuz 2026',
-    content: 'Eskişehir\'de kıymalı ve kaşarlı pide denince akla gelen en lezzetli mekanlardan biri. Girişindeki rampa tekerlekli sandalye ile rahat geçiş sağlıyor, personelin ilgisi ve servisi harika.',
-    helpfulCount: 38,
-    isHelpful: true,
-  },
-  {
-    id: 'rev-sp-2',
-    venueId: 'v-1',
-    userName: 'Gamze Yıldız',
-    userAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
-    userBadge: 'Topluluk Doğrulayıcısı',
-    rating: 4,
-    accessibilityRating: 4,
-    date: '28 Haziran 2026',
-    content: 'Pideleri çok lezzetli ve çıtır. Girişte basamak yok, kaldırım alçaltılmış ve rampa mevcut. İç mekânda masalar arası tekerlekli sandalye ile rahatça manevra yapılabiliyor.',
-    helpfulCount: 22,
-    isHelpful: true,
-  },
-  {
-    id: 'rev-sp-3',
-    venueId: 'v-1',
-    userName: 'Emre Şahin',
-    userAvatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80',
-    userBadge: 'Aktif Üye',
-    rating: 5,
-    accessibilityRating: 5,
-    date: '04 Haziran 2026',
-    content: 'Taş fırından yeni çıkan sıcak pidesi ve yanında sundukları demleme çay enfes. Tekerlekli sandalye kullanan annemle geldik, hiçbir zorluk yaşamadan oturduk.',
-    helpfulCount: 15,
-    isHelpful: false,
-  },
-  {
-    id: 'rev-dd-1',
-    venueId: 'v-3',
-    userName: 'Kerem Aksoy',
-    userAvatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=150&q=80',
-    userBadge: 'Saha Rehberi',
-    rating: 5,
-    accessibilityRating: 5,
-    date: '10 Temmuz 2026',
-    content: 'Tombik ekmek arası et döneri muhteşem. Girişi düz ayak ve basamaksız, akülü sandalyeyle rahatça sipariş verip masaya geçebiliyorsunuz.',
-    helpfulCount: 29,
-    isHelpful: true,
-  },
-  {
-    id: 'rev-lc-1',
-    venueId: 'v-2',
-    userName: 'Hakan Arslan',
-    userAvatar: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=150&q=80',
-    userBadge: 'Aktif Keşifçi',
-    rating: 4,
-    accessibilityRating: 4,
-    date: '01 Temmuz 2026',
-    content: 'Pizzaları her zaman taze ve lezzetli. Kapı girişi genişletilmiş ve kaldırımdan rampa eğimi gayet uygun.',
-    helpfulCount: 14,
-    isHelpful: true,
-  },
-  {
-    id: 'rev-1',
-    venueId: 'v-67',
-    userName: 'Ayşe Yılmaz',
-    userAvatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80',
-    userBadge: 'Saha Denetçisi',
-    rating: 5,
-    accessibilityRating: 5,
-    date: '18 Haziran 2026',
-    content: 'Atatürk Bulvarı Starbucks şubesinde engelli tuvaleti ve braille bilgilendirmeleri eksiksiz. Tekerlekli sandalyeyle masalara geçiş çok rahat.',
-    helpfulCount: 24,
-    isHelpful: true,
-  },
-  {
-    id: 'rev-2',
-    venueId: 'v-6',
-    userName: 'Mehmet Demir',
-    userAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80',
-    userBadge: 'Topluluk Lideri',
-    rating: 5,
-    accessibilityRating: 5,
-    date: '02 Haziran 2026',
-    content: 'McDonald\'s Yenibağlar şubesinde engelli lavabosu kilitli değildi ve genişliği akülü sandalyeme tam uydu.',
-    helpfulCount: 18,
-    isHelpful: false,
-  },
-  {
-    id: 'rev-3',
-    venueId: 'v-31',
-    userName: 'Zeynep Kaya',
-    userAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
-    userBadge: 'Aktif Keşifçi',
-    rating: 4,
-    accessibilityRating: 4,
-    date: '20 Mayıs 2026',
-    content: 'Öncü Döner\'de hem rampa hem bilgilendirme yazısı mevcut. Rahatlıkla ziyaret edilebilir.',
-    helpfulCount: 11,
-    isHelpful: true,
-  }
-];
+export const MOCK_REVIEWS: Review[] = [];
 
-export const MOCK_COMMUNITY_POSTS: CommunityPost[] = [
-  {
-    id: 'post-1',
-    userId: 'u-101',
-    userName: 'Ayşe Yılmaz',
-    userAvatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80',
-    userLevel: 'Saha Denetçisi',
-    isVerifiedContributor: true,
-    date: '10 dakika önce',
-    content: 'Espark AVM ana giriş rampası ve engelli asansörleri saha ekibimizce doğrulandı. Akülü sandalye manevra alanı oldukça geniş.',
-    venueName: 'Espark Alışveriş Merkezi',
-    image: 'https://images.unsplash.com/photo-1519567241046-7f570eee3ce6?auto=format&fit=crop&w=800&q=80',
-    likesCount: 38,
-    commentsCount: 9,
-    isLiked: true,
-    isSaved: true,
-    locationName: 'Eskibağlar, Tepebaşı / Eskişehir',
-    statusBadge: '✓ Saha Onaylı',
-    categoryTag: 'dogrulanan',
-    accessibilityTags: ['♿ Rampa', '🛗 Asansör', '🚻 Engelli Tuvaleti'],
-  },
-  {
-    id: 'post-2',
-    userId: 'u-102',
-    userName: 'Mehmet Demir',
-    userAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80',
-    userLevel: 'Topluluk Lideri',
-    isVerifiedContributor: true,
-    date: '35 dakika önce',
-    content: 'Vişnelik Mahallesi Atatürk Bulvarı üzerindeki kaldırımlar yenilendi. Rampa eğimleri tekerlekli sandalye geçişine tam uygun.',
-    venueName: 'Vişnelik Bulvarı',
-    image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=800&q=80',
-    likesCount: 24,
-    commentsCount: 4,
-    isLiked: false,
-    isSaved: false,
-    locationName: 'Vişnelik, Odunpazarı / Eskişehir',
-    statusBadge: '✓ Doğrulandı',
-    categoryTag: 'dogrulanan',
-    accessibilityTags: ['🚶 Uygun Kaldırım', '♿ Rampa'],
-  },
-  {
-    id: 'post-3',
-    userId: 'u-103',
-    userName: 'Zeynep Kaya',
-    userAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
-    userLevel: 'Erişilebilirlik Keşifçisi',
-    isVerifiedContributor: false,
-    date: '1 saat önce',
-    content: 'Haller Gençlik Merkezi içerisindeki engelli tuvaleti temiz ve bakımlı mı? Yakın zamanda ziyaret eden var mı?',
-    venueName: 'Haller Gençlik Merkezi',
-    likesCount: 12,
-    commentsCount: 6,
-    isLiked: false,
-    isSaved: false,
-    locationName: 'Hoşnudiye, Tepebaşı / Eskişehir',
-    statusBadge: '❓ Sorular',
-    categoryTag: 'sorular',
-    accessibilityTags: ['🚻 Engelli Tuvaleti'],
-  },
-  {
-    id: 'post-4',
-    userId: 'u-104',
-    userName: 'Caner Özkan',
-    userAvatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80',
-    userLevel: 'Topluluk Üyesi',
-    isVerifiedContributor: false,
-    date: '2 saat önce',
-    content: 'Odunpazarı Evleri civarında tekerlekli sandalye ile rahat gezilebilecek düz zemin rotası arıyorum. Yardımcı olabilir misiniz?',
-    venueName: 'Odunpazarı Tarihi Bölge',
-    likesCount: 19,
-    commentsCount: 8,
-    isLiked: true,
-    isSaved: false,
-    locationName: 'Odunpazarı / Eskişehir',
-    statusBadge: '🆘 Yardım İsteği',
-    categoryTag: 'yardim',
-    accessibilityTags: ['♿ Düz Zemin Rota'],
-  },
-  {
-    id: 'post-5',
-    userId: 'u-105',
-    userName: 'Selin Yıldız',
-    userAvatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=150&q=80',
-    userLevel: 'Yeni Üye',
-    isVerifiedContributor: false,
-    date: '3 saat önce',
-    content: 'Porsuk Bulvarı Adalar mevkiindeki yeni kafeye rampa eklenmiş! Çok memnun kaldım, herkese tavsiye ederim.',
-    venueName: 'Adalar Cafe',
-    likesCount: 15,
-    commentsCount: 3,
-    isLiked: false,
-    isSaved: true,
-    locationName: 'Porsuk Bulvarı, Eskişehir',
-    statusBadge: '✨ Yeni Paylaşım',
-    categoryTag: 'yeni',
-    accessibilityTags: ['♿ Rampa', '☕ Düz Giriş'],
-  }
-];
+export const MOCK_COMMUNITY_POSTS: CommunityPost[] = [];
 
 export const MOCK_CHATS: ChatConversation[] = [
   {

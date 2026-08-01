@@ -12,10 +12,15 @@ import {
   X, 
   Plus,
   HelpCircle,
-  FileText
+  FileText,
+  Search,
+  ExternalLink,
+  ShieldCheck,
+  Compass
 } from 'lucide-react';
 import { Venue, FeatureStatus, AccessibilityFeatureId, VenueCategory } from '../types';
 import { ACCESSIBILITY_FEATURES_CONFIG } from '../data/mockData';
+import { searchGoogleMapsPlaces, GoogleMapsPlaceSuggestion } from '../data/googleMapsPlaces';
 import { PrimaryButton, SecondaryButton } from '../components/UIElements';
 
 interface AddVenueWizardProps {
@@ -32,6 +37,37 @@ export const AddVenueWizard: React.FC<AddVenueWizardProps> = ({ onBack, onSubmit
   const [district, setDistrict] = useState('Tepebaşı');
   const [address, setAddress] = useState('');
   const [phone, setPhone] = useState('');
+  const [coordinates, setCoordinates] = useState<{ lat: number; lng: number }>({ lat: 39.778, lng: 30.512 });
+  const [googleMapsUrl, setGoogleMapsUrl] = useState<string>('');
+  const [verifiedFromMaps, setVerifiedFromMaps] = useState<boolean>(false);
+
+  // Google Maps Suggestions State
+  const [mapsSuggestions, setMapsSuggestions] = useState<GoogleMapsPlaceSuggestion[]>([]);
+  const [isShowingSuggestions, setIsShowingSuggestions] = useState(false);
+
+  const handleNameChange = (val: string) => {
+    setName(val);
+    if (val.trim().length >= 1) {
+      const results = searchGoogleMapsPlaces(val);
+      setMapsSuggestions(results);
+      setIsShowingSuggestions(true);
+    } else {
+      setMapsSuggestions([]);
+      setIsShowingSuggestions(false);
+    }
+  };
+
+  const handleSelectMapsSuggestion = (sug: GoogleMapsPlaceSuggestion) => {
+    setName(sug.name);
+    setCategory(sug.category);
+    setDistrict(sug.district);
+    setAddress(sug.address);
+    setPhone(sug.phone);
+    setCoordinates({ lat: sug.lat, lng: sug.lng });
+    setGoogleMapsUrl(sug.googleMapsUrl);
+    setVerifiedFromMaps(true);
+    setIsShowingSuggestions(false);
+  };
 
   // Features checklist state
   const [features, setFeatures] = useState<Record<AccessibilityFeatureId, FeatureStatus>>({
@@ -82,7 +118,7 @@ export const AddVenueWizard: React.FC<AddVenueWizardProps> = ({ onBack, onSubmit
       onSubmitVenue({
         name,
         category,
-        categoryLabel: category === 'kafe' ? 'Kafe' : category === 'restoran' ? 'Restoran' : category === 'muze' ? 'Müze' : category === 'avm' ? 'Alışveriş Merkezi' : 'Diğer',
+        categoryLabel: category === 'kafe' ? 'Kafe' : category === 'restoran' ? 'Restoran' : category === 'muze' ? 'Müze' : category === 'avm' ? 'Alışveriş Merkezi' : category === 'saglik' ? 'Sağlık Kuruluşu' : category === 'oteller' ? 'Otel' : 'Diğer',
         address: address || 'Eskişehir',
         district,
         city: 'Eskişehir',
@@ -93,15 +129,21 @@ export const AddVenueWizard: React.FC<AddVenueWizardProps> = ({ onBack, onSubmit
         accessibilityLevel: computedScore >= 80 ? 'high' : 'medium',
         isVerified: false,
         isFavorite: false,
-        coverImage: uploadedPhotos[0],
+        lastUpdatedDate: '30 Temmuz 2026',
+        coverImage: uploadedPhotos[0] || 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=800&q=80',
         images: uploadedPhotos,
         phone: phone || '0222 000 00 00',
         openingHours: '09:00 - 22:00',
-        coordinates: { lat: 39.778, lng: 30.512 },
+        coordinates: coordinates,
+        googleMapsUrl: googleMapsUrl || `https://maps.google.com/?q=${encodeURIComponent(name + ' Eskişehir')}`,
         features,
         featureNotes,
         description: description || 'Kullanıcı tarafından eklenen yeni erişilebilir mekan.',
-        tags: ['Yeni Eklenen', 'Kullanıcı Katkısı']
+        tags: ['Kullanıcı Katkısı', 'Harita Doğrulanmış'],
+        approvalStatus: 'pending',
+        isApproved: false,
+        submittedAt: '30 Temmuz 2026',
+        submittedBy: 'Mevcut Kullanıcı'
       });
 
       setStep(5); // Success step
@@ -119,7 +161,7 @@ export const AddVenueWizard: React.FC<AddVenueWizardProps> = ({ onBack, onSubmit
           <ArrowLeft className="w-5 h-5" />
         </button>
         <h1 className="font-black text-base text-gray-900">
-          {step === 5 ? 'Tebrikler!' : `Yeni Mekân Ekle (${step}/4)`}
+          {step === 5 ? 'Başvuru Alındı' : `Yeni Mekân Ekle (${step}/4)`}
         </h1>
         <div className="w-9" />
       </div>
@@ -128,7 +170,7 @@ export const AddVenueWizard: React.FC<AddVenueWizardProps> = ({ onBack, onSubmit
       {step < 5 && (
         <div className="bg-white px-4 pb-3 border-b border-gray-100">
           <div className="flex justify-between text-xs font-bold text-gray-500 mb-1.5">
-            <span>1. Genel</span>
+            <span>1. Genel & Maps</span>
             <span>2. Erişilebilirlik</span>
             <span>3. Görsel</span>
             <span>4. Detay</span>
@@ -144,28 +186,116 @@ export const AddVenueWizard: React.FC<AddVenueWizardProps> = ({ onBack, onSubmit
 
       {/* STEP CONTENT */}
       <div className="p-4 flex-1 space-y-5">
-        {/* STEP 1: Basic Info */}
+        {/* STEP 1: Basic Info with Google Maps Autocomplete */}
         {step === 1 && (
           <div className="space-y-4 animate-in fade-in duration-200">
-            <div className="bg-teal-50/80 p-3.5 rounded-2xl border border-teal-100 text-xs text-teal-900">
-              <span className="font-bold flex items-center gap-1.5 mb-1">
-                <Building2 className="w-4 h-4 text-[#009688]" />
-                Mekân Kimlik Bilgileri
-              </span>
-              Topluluğumuzun yeni erişilebilir yerler keşfetmesine yardımcı olun.
+            <div className="bg-[#0F172A] p-4 rounded-2xl text-white shadow-sm space-y-1">
+              <div className="flex items-center gap-2 text-emerald-400 font-extrabold text-xs uppercase tracking-wider">
+                <Compass className="w-4 h-4 text-emerald-400" />
+                <span>Google Maps Destekli Mekân Arama</span>
+              </div>
+              <p className="text-xs text-slate-300">
+                Mekân adını yazmaya başladığınızda haritalardan öneriler çıkacaktır. Öneri seçtiğinizde adres ve harita konumu otomatik tanımlanır.
+              </p>
             </div>
 
-            <div>
-              <label className="text-xs font-bold text-gray-800 block mb-1">Mekân Adı *</label>
-              <input
-                type="text"
-                required
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Örn: Starbucks Doktorlar Şubesi"
-                className="w-full p-3 text-sm bg-white border border-gray-200 rounded-xl focus:outline-none focus:border-[#009688]"
-              />
+            {/* Venue Name Input with Autocomplete */}
+            <div className="relative">
+              <label className="text-xs font-bold text-gray-800 flex items-center justify-between mb-1">
+                <span>Mekân Adı (Google Maps Arama) *</span>
+                <span className="text-[10px] text-[#0D9488] font-semibold flex items-center gap-0.5">
+                  <MapPin className="w-3 h-3" />
+                  Haritadan Öneriler
+                </span>
+              </label>
+
+              <div className="relative">
+                <input
+                  type="text"
+                  required
+                  value={name}
+                  onChange={(e) => handleNameChange(e.target.value)}
+                  onFocus={() => {
+                    if (name.trim().length >= 1) {
+                      setMapsSuggestions(searchGoogleMapsPlaces(name));
+                      setIsShowingSuggestions(true);
+                    }
+                  }}
+                  placeholder="Örn: Starbucks Doktorlar, OMM, Espark..."
+                  className="w-full pl-10 pr-9 py-3 text-sm bg-white border border-gray-200 rounded-xl focus:outline-none focus:border-[#009688] focus:ring-2 focus:ring-[#009688]/15 shadow-xs"
+                />
+                <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3.5" />
+                {name && (
+                  <button
+                    onClick={() => {
+                      setName('');
+                      setIsShowingSuggestions(false);
+                      setVerifiedFromMaps(false);
+                    }}
+                    className="absolute right-3 top-3.5 text-slate-400 hover:text-slate-600"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+
+              {/* Suggestions Dropdown */}
+              {isShowingSuggestions && mapsSuggestions.length > 0 && (
+                <div className="absolute z-40 left-0 right-0 mt-1.5 bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden max-h-60 overflow-y-auto divide-y divide-slate-100">
+                  <div className="px-3 py-1.5 bg-slate-50 text-[10px] font-extrabold text-slate-500 uppercase tracking-wider flex items-center justify-between">
+                    <span>🗺️ Google Maps Eskişehir Konum Önerileri</span>
+                    <button onClick={() => setIsShowingSuggestions(false)} className="text-slate-400 hover:text-slate-700">Kapat</button>
+                  </div>
+
+                  {mapsSuggestions.map((sug) => (
+                    <div
+                      key={sug.id}
+                      onClick={() => handleSelectMapsSuggestion(sug)}
+                      className="p-3 hover:bg-emerald-50/80 cursor-pointer transition-colors flex items-start gap-2.5"
+                    >
+                      <div className="p-2 rounded-xl bg-slate-100 text-[#009688] shrink-0 mt-0.5">
+                        <MapPin className="w-4 h-4" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-1">
+                          <span className="font-bold text-xs text-slate-900 truncate">{sug.name}</span>
+                          <span className="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-semibold shrink-0">
+                            {sug.categoryLabel}
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-slate-500 truncate mt-0.5">{sug.address}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
+
+            {/* Google Maps Verification Badge */}
+            {verifiedFromMaps && (
+              <div className="bg-emerald-50 p-3 rounded-2xl border border-emerald-200 text-xs text-emerald-900 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+                  <div>
+                    <span className="font-extrabold block">Google Maps Konumu Doğrulandı</span>
+                    <span className="text-[11px] text-emerald-700">
+                      Koordinat: {coordinates.lat.toFixed(4)}, {coordinates.lng.toFixed(4)}
+                    </span>
+                  </div>
+                </div>
+                {googleMapsUrl && (
+                  <a
+                    href={googleMapsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-1.5 bg-white text-emerald-700 hover:bg-emerald-100 rounded-lg border border-emerald-200"
+                    title="Google Maps'te Aç"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                  </a>
+                )}
+              </div>
+            )}
 
             <div>
               <label className="text-xs font-bold text-gray-800 block mb-1">Kategori</label>
@@ -180,6 +310,8 @@ export const AddVenueWizard: React.FC<AddVenueWizardProps> = ({ onBack, onSubmit
                 <option value="avm">Alışveriş Merkezi (AVM)</option>
                 <option value="park">Park & Açık Alan</option>
                 <option value="kultur_sanat">Kültür & Sanat</option>
+                <option value="saglik">Sağlık Kuruluşu / Hastane</option>
+                <option value="oteller">Otel & Konaklama</option>
                 <option value="kamu">Kamu Binası</option>
               </select>
             </div>
@@ -197,12 +329,23 @@ export const AddVenueWizard: React.FC<AddVenueWizardProps> = ({ onBack, onSubmit
             </div>
 
             <div>
-              <label className="text-xs font-bold text-gray-800 block mb-1">Açık Adres</label>
+              <label className="text-xs font-bold text-gray-800 block mb-1">Açık Adres (Google Maps)</label>
               <textarea
                 rows={2}
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
-                placeholder="Örn: İsmet İnönü-1 Cad. No:12 Doktorlar Caddesi"
+                placeholder="Örn: İsmet İnönü-1 Cad. No:12 Doktorlar Caddesi, Tepebaşı / Eskişehir"
+                className="w-full p-3 text-sm bg-white border border-gray-200 rounded-xl focus:outline-none focus:border-[#009688]"
+              />
+            </div>
+
+            <div>
+              <label className="text-xs font-bold text-gray-800 block mb-1">İletişim Telefonu</label>
+              <input
+                type="text"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="Örn: 0222 230 11 22"
                 className="w-full p-3 text-sm bg-white border border-gray-200 rounded-xl focus:outline-none focus:border-[#009688]"
               />
             </div>
@@ -335,34 +478,51 @@ export const AddVenueWizard: React.FC<AddVenueWizardProps> = ({ onBack, onSubmit
               <h4 className="font-bold text-xs text-gray-800 uppercase tracking-wider">Eklenen Mekân Özeti</h4>
               <p className="text-sm font-extrabold text-[#009688]">{name || 'İsimsiz Mekân'}</p>
               <p className="text-xs text-gray-600">{address || 'Eskişehir'}</p>
-              <p className="text-xs text-gray-500">Yüklenen Görsel Sayısı: {uploadedPhotos.length}</p>
+              <p className="text-xs text-emerald-700 font-semibold flex items-center gap-1">
+                <MapPin className="w-3.5 h-3.5" />
+                <span>Google Maps Koordinatı: {coordinates.lat.toFixed(4)}, {coordinates.lng.toFixed(4)}</span>
+              </p>
+              <p className="text-xs text-amber-700 font-semibold">
+                ⏳ Başvuru durumu: Geliştirici (Yönetici) Onayı Bekleyecek
+              </p>
             </div>
           </div>
         )}
 
-        {/* STEP 5: Success Screen */}
+        {/* STEP 5: Success Screen with Admin Approval Notice */}
         {step === 5 && (
-          <div className="py-8 text-center space-y-5 animate-in zoom-in duration-300">
-            <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center text-[#2E7D32] mx-auto shadow-soft">
-              <CheckCircle2 className="w-12 h-12" />
+          <div className="py-6 text-center space-y-5 animate-in zoom-in duration-300">
+            <div className="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center text-amber-700 mx-auto shadow-soft">
+              <ShieldCheck className="w-12 h-12" />
             </div>
 
             <div>
-              <h2 className="text-2xl font-black text-gray-900">Mekân Bildirimi Alındı!</h2>
-              <p className="text-xs text-gray-600 mt-1 max-w-xs mx-auto">
-                Katkınız için teşekkürler. Mekân saha denetçileri veya topluluk doğrulaması sonrası kalıcı onay alacaktır.
+              <h2 className="text-2xl font-black text-slate-900">Mekân Başvurusu Alındı!</h2>
+              <p className="text-xs text-slate-600 mt-2 max-w-xs mx-auto leading-relaxed">
+                Mekân ekleme talebiniz <strong>Geliştirici (Yönetici) Onay Paneli</strong>'ne iletildi. Uygulama geliştiricisi onayladıktan sonra haritada ve listede tüm kullanıcılar için yayına alınacaktır.
+              </p>
+            </div>
+
+            <div className="p-4 bg-amber-50 rounded-2xl border border-amber-200 text-left space-y-2 shadow-xs">
+              <div className="flex items-center gap-2 text-amber-900 font-extrabold text-xs">
+                <ShieldCheck className="w-4 h-4 text-amber-600" />
+                <span>Geliştirici Onay Süreci Bilgisi</span>
+              </div>
+              <p className="text-xs text-amber-800 leading-snug">
+                • Eklediğiniz mekân Google Maps verileriyle eşleştirildi.<br />
+                • Profil sayfanızdaki <strong>"Geliştirici Onay Paneli"</strong> üzerinden başvurunuzu inceleyebilirsiniz.
               </p>
             </div>
 
             <div className="p-4 bg-teal-50 rounded-2xl border border-teal-200 inline-block shadow-xs">
               <div className="flex items-center gap-2 text-[#009688] font-black text-sm">
                 <Sparkles className="w-5 h-5" />
-                <span>+50 Erişilebilirlik Puanı Kazandınız!</span>
+                <span>+50 Taslak Erişilebilirlik Puanı Kazandınız!</span>
               </div>
-              <p className="text-[11px] text-teal-800 mt-0.5">Topluluk Seviyesi: "Erişilebilirlik Elçisi"</p>
+              <p className="text-[11px] text-teal-800 mt-0.5">Onaylandıktan sonra puan hesabınıza tanımlanır.</p>
             </div>
 
-            <div className="pt-4">
+            <div className="pt-2">
               <PrimaryButton onClick={onBack} fullWidth>
                 Ana Sayfaya Dön
               </PrimaryButton>
@@ -386,10 +546,11 @@ export const AddVenueWizard: React.FC<AddVenueWizardProps> = ({ onBack, onSubmit
             icon={<ArrowRight className="w-4 h-4" />}
             size="md"
           >
-            {step === 4 ? 'Mekânı Kaydet' : 'Devam Et'}
+            {step === 4 ? 'Geliştirici Onayına Gönder' : 'Devam Et'}
           </PrimaryButton>
         </div>
       )}
     </div>
   );
 };
+

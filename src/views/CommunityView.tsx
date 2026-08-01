@@ -247,14 +247,6 @@ export const CommunityView: React.FC<CommunityViewProps> = ({
             >
               <Search className="w-4 h-4 stroke-[2.2]" />
             </button>
-
-            <button
-              onClick={() => onOpenChat && onOpenChat()}
-              className="relative p-2.5 rounded-full bg-slate-100/80 hover:bg-slate-200/60 text-slate-700 transition-colors cursor-pointer"
-              aria-label="Bildirimler"
-            >
-              <MessageCircle className="w-4 h-4 stroke-[2.2]" />
-            </button>
           </div>
         </div>
 
@@ -487,48 +479,50 @@ export const CommunityView: React.FC<CommunityViewProps> = ({
       </section>
 
       {/* 3. TRENDING SECTION: "Bugünün En Faydalı Paylaşımları" */}
-      <section className="px-5 pt-4 pb-3">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-xl bg-[#12B886]/10 text-[#12B886]">
-              <Sparkles className="w-4 h-4 fill-[#12B886]/20" />
+      {trendingPosts.length > 0 && (
+        <section className="px-5 pt-4 pb-3">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 rounded-xl bg-[#12B886]/10 text-[#12B886]">
+                <Sparkles className="w-4 h-4 fill-[#12B886]/20" />
+              </div>
+              <h2 className="text-sm font-extrabold text-[#0D1B2A] tracking-tight">Bugünün En Faydalı Paylaşımları</h2>
             </div>
-            <h2 className="text-sm font-extrabold text-[#0D1B2A] tracking-tight">Bugünün En Faydalı Paylaşımları</h2>
+            <span className="text-[11px] font-bold text-[#12B886]">Top 3</span>
           </div>
-          <span className="text-[11px] font-bold text-[#12B886]">Top 3</span>
-        </div>
 
-        <div className="flex items-center gap-3 overflow-x-auto no-scrollbar pb-2 -mx-5 px-5">
-          {trendingPosts.map((post, idx) => (
-            <div
-              key={post.id}
-              onClick={() => post.venueId && onSelectVenueById(post.venueId)}
-              className="shrink-0 w-64 bg-white p-3.5 rounded-[22px] border border-slate-100 shadow-soft hover:shadow-md transition-all cursor-pointer flex flex-col justify-between gap-2.5 relative"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="w-5 h-5 rounded-full bg-[#0D1B2A] text-white text-[10px] font-black flex items-center justify-center">
-                    #{idx + 1}
+          <div className="flex items-center gap-3 overflow-x-auto no-scrollbar pb-2 -mx-5 px-5">
+            {trendingPosts.map((post, idx) => (
+              <div
+                key={post.id}
+                onClick={() => post.venueId && onSelectVenueById(post.venueId)}
+                className="shrink-0 w-64 bg-white p-3.5 rounded-[22px] border border-slate-100 shadow-soft hover:shadow-md transition-all cursor-pointer flex flex-col justify-between gap-2.5 relative"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="w-5 h-5 rounded-full bg-[#0D1B2A] text-white text-[10px] font-black flex items-center justify-center">
+                      #{idx + 1}
+                    </span>
+                    <span className="text-xs font-bold text-[#0D1B2A] truncate max-w-[120px]">{post.userName}</span>
+                  </div>
+                  <span className="px-2 py-0.5 rounded-md bg-[#12B886]/10 text-[#12B886] text-[10px] font-extrabold">
+                    {post.likesCount} ❤️
                   </span>
-                  <span className="text-xs font-bold text-[#0D1B2A] truncate max-w-[120px]">{post.userName}</span>
                 </div>
-                <span className="px-2 py-0.5 rounded-md bg-[#12B886]/10 text-[#12B886] text-[10px] font-extrabold">
-                  {post.likesCount} ❤️
-                </span>
-              </div>
 
-              <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed font-normal">
-                "{post.content}"
-              </p>
+                <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed font-normal">
+                  "{post.content}"
+                </p>
 
-              <div className="flex items-center justify-between pt-1 border-t border-slate-100 text-[11px] font-semibold text-slate-400">
-                <span className="truncate">{post.venueName || 'Eskişehir'}</span>
-                <span className="text-[#12B886]">İncele →</span>
+                <div className="flex items-center justify-between pt-1 border-t border-slate-100 text-[11px] font-semibold text-slate-400">
+                  <span className="truncate">{post.venueName || 'Eskişehir'}</span>
+                  <span className="text-[#12B886]">İncele →</span>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-      </section>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* 4. COMMUNITY FEED */}
       <main className="px-5 pt-2 space-y-4">

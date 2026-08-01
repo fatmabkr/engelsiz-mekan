@@ -1,4 +1,5 @@
 import React from 'react';
+import { Logo } from './Logo';
 import { 
   Home, 
   Compass, 
@@ -55,16 +56,12 @@ export const SearchBar: React.FC<SearchBarProps> = ({
           placeholder={placeholder}
           className="touch-target w-full pl-11 pr-10 py-3 rounded-2xl bg-white border border-slate-200 text-sm font-medium text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#0F172A] focus:ring-2 focus:ring-[#0F172A]/15 shadow-soft transition-all"
         />
-        {value ? (
+        {value && (
           <button
             onClick={() => onChange('')}
-            className="absolute right-3 text-slate-400 hover:text-slate-600 p-1"
+            className="absolute right-3 text-slate-400 hover:text-slate-600 p-1 cursor-pointer"
           >
             <X className="w-4 h-4" />
-          </button>
-        ) : (
-          <button className="absolute right-3 text-slate-400 hover:text-[#0D9488] p-1">
-            <Mic className="w-4 h-4" />
           </button>
         )}
       </div>
@@ -104,20 +101,20 @@ export const Header: React.FC<HeaderProps> = ({
   onCityClick,
   onNotificationClick,
   onProfileClick,
-  unreadNotificationsCount = 3,
+  unreadNotificationsCount = 0,
 }) => {
   return (
-    <div className="bg-white px-4 py-3 border-b border-slate-100 sticky top-0 z-30 shadow-xs">
-      <div className="max-w-md mx-auto flex items-center justify-between">
+    <div className="bg-white/95 backdrop-blur-md px-4 py-2.5 border-b border-slate-100 sticky top-0 z-30 shadow-xs w-full">
+      <div className="w-full flex items-center justify-between">
         {/* Left: Greeting & City */}
         <div>
           <div className="flex items-center gap-1">
-            <span className="text-[11px] font-black tracking-tight text-[#0F172A]">YOL AÇIK</span>
-            <span className="text-[10px] text-slate-400">• Engelsiz Keşif</span>
+            <span className="text-[12px] font-black tracking-tight text-[#0F172A]">YOL AÇIK</span>
+            <span className="text-[10px] text-slate-400 font-medium">• Engelsiz Keşif</span>
           </div>
           <button
             onClick={onCityClick}
-            className="flex items-center gap-1 font-black text-sm text-[#0D9488] hover:text-[#0F172A] transition-colors cursor-pointer"
+            className="flex items-center gap-1 font-black text-xs text-[#0D9488] hover:text-[#0F172A] transition-colors cursor-pointer"
           >
             <MapPin className="w-3.5 h-3.5 text-[#0D9488] fill-[#0D9488]/20" />
             <span>{currentCity}</span>
@@ -129,18 +126,18 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="flex items-center gap-2">
           <button
             onClick={onNotificationClick}
-            className="relative w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200/80 flex items-center justify-center text-slate-700 transition-colors cursor-pointer"
+            className="relative w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200/80 flex items-center justify-center text-slate-700 transition-colors cursor-pointer shrink-0"
             aria-label="Bildirimler"
           >
-            <Bell className="w-5 h-5 text-[#0F172A]" />
+            <Bell className="w-4.5 h-4.5 text-[#0F172A]" />
             {unreadNotificationsCount > 0 && (
-              <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-[#0D9488] rounded-full ring-2 ring-white" />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#0D9488] rounded-full ring-2 ring-white" />
             )}
           </button>
 
           <button
             onClick={onProfileClick}
-            className="w-10 h-10 rounded-full ring-2 ring-[#0F172A]/30 overflow-hidden cursor-pointer active:scale-95 transition-transform"
+            className="w-9 h-9 rounded-full ring-2 ring-[#0F172A]/30 overflow-hidden cursor-pointer active:scale-95 transition-transform shrink-0"
             aria-label="Profilim"
           >
             <img
@@ -183,7 +180,7 @@ export const BottomNavigation: React.FC<BottomNavProps> = ({
   ];
 
   return (
-    <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md z-40 bg-white/95 backdrop-blur-md border-t border-x border-slate-200/80 rounded-t-2xl shadow-xl pb-safe">
+    <div className="sticky bottom-0 z-40 shrink-0 w-full bg-white/95 backdrop-blur-md border-t border-slate-200/80 shadow-lg pb-safe select-none">
       <div className="relative px-2 py-1 flex items-center justify-between">
         {tabsLeft.map((tab) => {
           const Icon = tab.icon;

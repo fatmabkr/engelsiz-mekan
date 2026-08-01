@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { 
   ArrowLeft, 
   Heart, 
-  Share2, 
   MapPin, 
   Phone, 
   Clock, 
@@ -16,7 +15,8 @@ import {
   CheckCircle2,
   Send,
   ExternalLink,
-  Globe
+  Globe,
+  Calendar
 } from 'lucide-react';
 import { Venue, Review, AccessibilityFeatureId } from '../types';
 import { ACCESSIBILITY_FEATURES_CONFIG } from '../data/mockData';
@@ -122,49 +122,7 @@ export const VenueDetailView: React.FC<VenueDetailViewProps> = ({
     showToast('Değerlendirmeniz başarıyla yayınlandı!');
   };
 
-  const venueReviews = reviews.length > 0 
-    ? reviews 
-    : [
-        {
-          id: `rev-${venue.id}-1`,
-          venueId: venue.id,
-          userName: 'Burak Öztürk',
-          userAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80',
-          userBadge: 'Yerel Rehber (Level 6)',
-          rating: 5,
-          accessibilityRating: 5,
-          date: '12 Temmuz 2026',
-          content: `${venue.name} için lezzet ve hizmet harika. Girişteki rampa tekerlekli sandalye ile geçişi son derece kolaylaştırıyor. Personel ilgili ve güleryüzlü.`,
-          helpfulCount: 38,
-          isHelpful: true,
-        },
-        {
-          id: `rev-${venue.id}-2`,
-          venueId: venue.id,
-          userName: 'Gamze Yıldız',
-          userAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
-          userBadge: 'Saha Denetçisi',
-          rating: 4,
-          accessibilityRating: 4,
-          date: '28 Haziran 2026',
-          content: `Mekânın basamaksız girişi, düz zemini ve geniş kapıları tekerlekli sandalye erişimine tam uygun. İç mekânda masalar arası rahatça hareket edilebiliyor.`,
-          helpfulCount: 22,
-          isHelpful: true,
-        },
-        {
-          id: `rev-${venue.id}-3`,
-          venueId: venue.id,
-          userName: 'Emre Şahin',
-          userAvatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80',
-          userBadge: 'Aktif Üye',
-          rating: 5,
-          accessibilityRating: 5,
-          date: '04 Haziran 2026',
-          content: `Saha ekibi tarafından incelenmiş kaliteli erişilebilir mekân. Engelsiz ulaşımı desteklediğiniz için teşekkürler.`,
-          helpfulCount: 15,
-          isHelpful: false,
-        }
-      ];
+  const venueReviews = reviews;
 
   return (
     <div className="bg-[#FAFAFA] min-h-screen pb-24 max-w-md mx-auto">
@@ -192,13 +150,6 @@ export const VenueDetailView: React.FC<VenueDetailViewProps> = ({
 
         <div className="flex items-center gap-1">
           <button
-            onClick={handleShare}
-            className="p-2 rounded-xl hover:bg-gray-100 text-gray-700 transition-colors cursor-pointer"
-            aria-label="Paylaş"
-          >
-            <Share2 className="w-5 h-5" />
-          </button>
-          <button
             onClick={() => onToggleFavorite(venue.id)}
             className="p-2 rounded-xl hover:bg-gray-100 text-gray-700 transition-colors cursor-pointer"
             aria-label="Favori"
@@ -222,7 +173,7 @@ export const VenueDetailView: React.FC<VenueDetailViewProps> = ({
           <span className="px-3 py-1 bg-white/90 backdrop-blur-md text-gray-900 font-extrabold text-xs rounded-full">
             {venue.categoryLabel}
           </span>
-          {venue.isVerified && <VerifiedBadge text="Saha Onaylı" />}
+          {venue.isVerified && <VerifiedBadge text="Doğrulanmış" />}
         </div>
 
         {/* Thumbnails Navigator */}
@@ -264,6 +215,12 @@ export const VenueDetailView: React.FC<VenueDetailViewProps> = ({
             <MapPin className="w-3.5 h-3.5 text-[#009688]" />
             <span>{venue.address}</span>
           </p>
+          <div className="flex items-center gap-2 mt-2 flex-wrap text-xs">
+            <span className="px-2.5 py-1 bg-slate-100 text-slate-700 font-semibold rounded-lg flex items-center gap-1">
+              <Calendar className="w-3.5 h-3.5 text-[#009688]" />
+              <span>Son Güncelleme: <strong>{venue.lastUpdatedDate || venue.verifiedDate || '30 Temmuz 2026'}</strong></span>
+            </span>
+          </div>
         </div>
 
         {/* Ratings & Accessibility Progress Indicator */}
@@ -352,7 +309,7 @@ export const VenueDetailView: React.FC<VenueDetailViewProps> = ({
               : 'border-transparent text-gray-500 hover:text-gray-800'
           }`}
         >
-          Fotoğraflar ({venue.images.length})
+          Fotoğraflar ({galleryImages.length})
         </button>
       </div>
 
@@ -363,10 +320,10 @@ export const VenueDetailView: React.FC<VenueDetailViewProps> = ({
             <div className="bg-amber-50/80 p-3.5 rounded-2xl border border-amber-200/80 text-xs text-amber-900 space-y-1">
               <p className="font-bold flex items-center gap-1.5 text-amber-950">
                 <ShieldCheck className="w-4 h-4 text-[#FF9800]" />
-                Topluluk Doğrulama Notu
+                Güncel Erişilebilirlik Bilgisi
               </p>
               <p className="text-amber-900/90 leading-relaxed font-normal">
-                Bu bilgiler tekerlekli sandalye kullanıcıları ve saha ekiplerince yerinde kontrol edilmiştir.
+                Bu mekânın erişilebilirlik detayları en güncel standartlar ve kullanıcı geri bildirimleri doğrultusunda kontrol edilmiştir.
               </p>
             </div>
 
@@ -439,11 +396,19 @@ export const VenueDetailView: React.FC<VenueDetailViewProps> = ({
               </PrimaryButton>
             </div>
 
-            <div className="space-y-3">
-              {venueReviews.map((rev) => (
-                <ReviewCard key={rev.id} review={rev} />
-              ))}
-            </div>
+            {venueReviews.length === 0 ? (
+              <div className="p-8 text-center bg-white rounded-2xl border border-gray-100 shadow-xs space-y-2">
+                <MessageSquare className="w-8 h-8 text-slate-300 mx-auto" />
+                <p className="text-sm font-bold text-gray-700">Henüz değerlendirme yapılmamış</p>
+                <p className="text-xs text-gray-500">Bu mekân için ilk erişilebilirlik yorumunu siz ekleyin.</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {venueReviews.map((rev) => (
+                  <ReviewCard key={rev.id} review={rev} />
+                ))}
+              </div>
+            )}
           </div>
         )}
 
@@ -514,8 +479,9 @@ export const VenueDetailView: React.FC<VenueDetailViewProps> = ({
               fullWidth
               size="sm"
               onClick={() => {
+                venue.lastUpdatedDate = '30 Temmuz 2026';
                 setShowUpdateModal(false);
-                showToast('Güncelleme talebiniz incelenmek üzere alındı.');
+                showToast('Güncelleme talebiniz alındı ve son güncelleme tarihi yenilendi.');
               }}
             >
               Gönder

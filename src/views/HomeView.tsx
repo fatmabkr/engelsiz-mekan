@@ -84,7 +84,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
   const fullyAccessible = displayVenues.filter((v) => v.accessibilityScore >= 90);
 
   return (
-    <div className="bg-[#FAFAFA] min-h-screen pb-24 max-w-md mx-auto space-y-4">
+    <div className="bg-[#FAFAFA] min-h-full pb-20 w-full space-y-4">
       {/* Top Header */}
       <Header
         currentCity="Eskişehir"
@@ -120,7 +120,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
               </p>
             </div>
           </div>
-          <ChevronRight className="w-4 h-4 text-teal-200" />
+          <ChevronRight className="w-4 h-4 text-teal-200 shrink-0" />
         </div>
       </div>
 
@@ -198,7 +198,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
               actionText="Tümünü Gör"
               onAction={() => onNavigateTab('explore')}
             />
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
               {(nearbyVenues.length > 0 ? nearbyVenues : displayVenues).slice(0, 2).map((venue) => (
                 <VenueCard
                   key={venue.id}
@@ -223,7 +223,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
           actionText="Tümünü Gör"
           onAction={() => onNavigateTab('explore')}
         />
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
           {topRatedVenues.slice(0, 2).map((venue) => (
             <VenueCard
               key={venue.id}
@@ -241,10 +241,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
       {/* SECTION 3: Son Doğrulanan Mekânlar */}
       <div className="px-4 space-y-2 pt-2">
         <SectionTitle
-          title="Son Doğrulanan Mekânlar"
-          subtitle="Saha ekipleri tarafından onaylı yerler"
+          title="Son Güncellenen Mekânlar"
+          subtitle="Topluluk tarafından güncellenmiş ve doğrulanmış yerler"
         />
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
           {verifiedVenues.slice(0, 2).map((venue) => (
             <VenueCard
               key={venue.id}
@@ -265,7 +265,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
           title="Tam Erişilebilir Mekânlar (%90+)"
           subtitle="Tüm 9 fiziki kritere sahip engelsiz noktalar"
         />
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
           {fullyAccessible.slice(0, 2).map((venue) => (
             <VenueCard
               key={venue.id}

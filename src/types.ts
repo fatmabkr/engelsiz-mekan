@@ -36,6 +36,7 @@ export interface Venue {
   isVerified: boolean;
   verifiedBy?: string;
   verifiedDate?: string;
+  lastUpdatedDate?: string;
   isFavorite: boolean;
   coverImage: string;
   images: string[];
@@ -49,6 +50,11 @@ export interface Venue {
   featureNotes?: Partial<Record<AccessibilityFeatureId, string>>;
   description: string;
   tags: string[];
+  isApproved?: boolean;
+  approvalStatus?: 'pending' | 'approved' | 'rejected';
+  submittedBy?: string;
+  submittedAt?: string;
+  rejectionReason?: string;
 }
 
 export interface Review {
@@ -149,6 +155,7 @@ export interface FilterOptions {
 }
 
 export type Screen = 
+  | 'landing'
   | 'splash' 
   | 'onboarding' 
   | 'login' 
