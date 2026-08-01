@@ -518,23 +518,33 @@ export const OnboardingView: React.FC<{
 /* -------------------------------------------------------------------------- */
 
 export const LoginView: React.FC<{
-  onLoginSuccess: () => void;
+  onLoginSuccess: (email?: string, pass?: string) => void;
   onGoRegister: () => void;
   onGoForgot: () => void;
   onGuestContinue: () => void;
   onGoLanding?: () => void;
 }> = ({ onLoginSuccess, onGoRegister, onGoForgot, onGuestContinue, onGoLanding }) => {
   const [email, setEmail] = useState('ikra@engelsizmekan.org');
-  const [password, setPassword] = useState('******');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onLoginSuccess();
+    setErrorMsg(null);
+    setIsSubmitting(true);
+    try {
+      await onLoginSuccess(email, password);
+    } catch (err: any) {
+      setErrorMsg(err?.message || 'Giriş yapılamadı. Bilgilerinizi kontrol ediniz.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <div className="bg-slate-50 min-h-screen max-w-md mx-auto flex flex-col justify-between">
+    <div className="bg-slate-50 min-h-screen max-w-md mx-auto flex flex-col justify-between font-sans">
       {/* Top Navy-to-Green Gradient Banner */}
       <div className="bg-gradient-to-br from-[#0F172A] via-[#0F766E] to-[#059669] p-6 pb-9 text-white rounded-b-[32px] shadow-md text-center space-y-1.5 flex flex-col items-center relative">
         {onGoLanding && (
@@ -590,6 +600,13 @@ export const LoginView: React.FC<{
             </div>
           </div>
 
+          {errorMsg && (
+            <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-800 text-xs font-bold flex items-start gap-2 animate-in fade-in">
+              <span className="shrink-0 text-sm">⚠️</span>
+              <p className="leading-snug">{errorMsg}</p>
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-3.5">
             <div>
               <label className="text-xs font-bold text-slate-800 block mb-1">E-posta Adresi</label>
@@ -600,6 +617,7 @@ export const LoginView: React.FC<{
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  placeholder="ornek@mail.com"
                   className="w-full pl-10 pr-3 py-3 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#0F172A] focus:bg-white"
                 />
               </div>
@@ -614,6 +632,7 @@ export const LoginView: React.FC<{
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Şifreniz"
                   className="w-full pl-10 pr-10 py-3 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#0F172A] focus:bg-white"
                 />
                 <button
@@ -636,8 +655,8 @@ export const LoginView: React.FC<{
               </button>
             </div>
 
-            <PrimaryButton type="submit" fullWidth>
-              Giriş Yap
+            <PrimaryButton type="submit" fullWidth disabled={isSubmitting}>
+              {isSubmitting ? 'Firebase Girişi Yapılıyor...' : 'Giriş Yap'}
             </PrimaryButton>
           </form>
 
@@ -658,7 +677,7 @@ export const LoginView: React.FC<{
 };
 
 export const RegisterView: React.FC<{ 
-  onRegisterSuccess: () => void; 
+  onRegisterSuccess: (fullName: string, email: string, pass: string) => Promise<void>; 
   onGoLogin: () => void;
   onGoLanding?: () => void;
 }> = ({
@@ -666,8 +685,37 @@ export const RegisterView: React.FC<{
   onGoLogin,
   onGoLanding,
 }) => {
+  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!fullName.trim() || !email.trim() || !password.trim()) {
+      setErrorMsg('Lütfen tüm alanları doldurunuz.');
+      return;
+    }
+    if (password.length < 6) {
+      setErrorMsg('Şifreniz en az 6 karakter olmalıdır.');
+      return;
+    }
+
+    setErrorMsg(null);
+    setIsSubmitting(true);
+    try {
+      await onRegisterSuccess(fullName, email, password);
+    } catch (err: any) {
+      setErrorMsg(err?.message || 'Firebase kayıt işlemi sırasında hata oluştu.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
-    <div className="bg-slate-50 min-h-screen max-w-md mx-auto flex flex-col justify-between">
+    <div className="bg-slate-50 min-h-screen max-w-md mx-auto flex flex-col justify-between font-sans">
       {/* Top Banner Header */}
       <div className="bg-gradient-to-br from-[#0F172A] via-[#0F766E] to-[#059669] p-6 pb-10 text-white rounded-b-[32px] shadow-md text-center space-y-1.5 flex flex-col items-center relative">
         <div className="w-full flex items-center justify-between mb-1">
@@ -691,50 +739,66 @@ export const RegisterView: React.FC<{
           )}
         </div>
         <h2 className="text-2xl font-black text-white">YOL AÇIK — Kayıt Ol</h2>
-        <p className="text-xs text-teal-100 font-medium">Engelsiz topluluğumuza katılın ve mekân katkısında bulunun</p>
+        <p className="text-xs text-teal-100 font-medium">Firebase entegreli hesabınızı oluşturun ve topluluğumuza katılın</p>
       </div>
 
       <div className="p-6 -mt-6">
         <div className="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-soft space-y-4">
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              onRegisterSuccess();
-            }}
-            className="space-y-3.5"
-          >
+          {errorMsg && (
+            <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-800 text-xs font-bold flex items-start gap-2 animate-in fade-in">
+              <span className="shrink-0 text-sm">⚠️</span>
+              <p className="leading-snug">{errorMsg}</p>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-3.5">
             <div>
-              <label className="text-xs font-bold text-slate-800 block mb-1">Ad Soyad</label>
+              <label className="text-xs font-bold text-slate-800 block mb-1">Ad Soyad *</label>
               <input
                 type="text"
                 required
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
                 placeholder="Örn: Ayşe Yılmaz"
                 className="w-full p-3 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#0F172A] focus:bg-white"
               />
             </div>
 
             <div>
-              <label className="text-xs font-bold text-slate-800 block mb-1">E-posta Adresi</label>
+              <label className="text-xs font-bold text-slate-800 block mb-1">E-posta Adresi *</label>
               <input
                 type="email"
                 required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder="ornek@mail.com"
                 className="w-full p-3 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#0F172A] focus:bg-white"
               />
             </div>
 
             <div>
-              <label className="text-xs font-bold text-slate-800 block mb-1">Şifre</label>
-              <input
-                type="password"
-                required
-                placeholder="En az 6 karakter"
-                className="w-full p-3 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#0F172A] focus:bg-white"
-              />
+              <label className="text-xs font-bold text-slate-800 block mb-1">Şifre * (En az 6 karakter)</label>
+              <div className="relative flex items-center">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="En az 6 karakter"
+                  className="w-full p-3 pr-10 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#0F172A] focus:bg-white"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 text-slate-400 cursor-pointer hover:text-slate-600"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
             </div>
 
-            <PrimaryButton type="submit" fullWidth>
-              Kayıt Ol ve Katıl
+            <PrimaryButton type="submit" fullWidth disabled={isSubmitting}>
+              {isSubmitting ? 'Firebase Hesabı Oluşturuluyor...' : 'Kayıt Ol ve Katıl'}
             </PrimaryButton>
           </form>
 

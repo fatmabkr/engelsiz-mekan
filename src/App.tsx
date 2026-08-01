@@ -50,7 +50,13 @@ import {
   dbApproveVenue, 
   dbRejectVenue, 
   dbSaveReview, 
-  dbSavePost 
+  dbSavePost,
+  dbRegisterUser,
+  dbLoginUser,
+  dbLogoutUser,
+  subscribeToAuth,
+  formatFirebaseAuthError,
+  UserProfile
 } from './lib/firebaseSync';
 import { 
   SplashView, 
@@ -266,6 +272,9 @@ export default function App() {
   const [rejectedVenues, setRejectedVenues] = useState<Venue[]>([]);
   const [isAdminApprovalOpen, setIsAdminApprovalOpen] = useState<boolean>(false);
 
+  // Active User Profile State (Firebase Auth & Firestore Users collection)
+  const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
+
   React.useEffect(() => {
     // Subscribe to Firestore collections
     const unsubVenues = subscribeToVenues((remoteVenues) => {
@@ -280,14 +289,62 @@ export default function App() {
     const unsubPosts = subscribeToPosts((remotePosts) => {
       setPosts(remotePosts);
     });
+    const unsubAuth = subscribeToAuth((userProfile) => {
+      setCurrentUser(userProfile);
+    });
 
     return () => {
       unsubVenues();
       unsubPending();
       unsubReviews();
       unsubPosts();
+      unsubAuth();
     };
   }, []);
+
+  // Firebase Auth Handlers
+  const handleRegisterUser = async (fullName: string, email: string, pass: string) => {
+    try {
+      const profile = await dbRegisterUser(fullName, email, pass);
+      setCurrentUser(profile);
+      showToast(`✓ Kayıt başarılı! Hoş geldiniz, ${profile.displayName}`, 'success');
+      navigateTo('home');
+    } catch (err: any) {
+      const readableError = formatFirebaseAuthError(err);
+      showToast(`❌ Kayıt Hatası: ${readableError}`, 'error');
+      throw new Error(readableError);
+    }
+  };
+
+  const handleLoginUser = async (email?: string, pass?: string) => {
+    if (!email || !pass) {
+      // Guest Login
+      navigateTo('home');
+      return;
+    }
+    try {
+      const profile = await dbLoginUser(email, pass);
+      setCurrentUser(profile);
+      showToast(`✓ Giriş yapıldı! Hoş geldiniz, ${profile.displayName}`, 'success');
+      navigateTo('home');
+    } catch (err: any) {
+      const readableError = formatFirebaseAuthError(err);
+      showToast(`❌ Giriş Hatası: ${readableError}`, 'error');
+      throw new Error(readableError);
+    }
+  };
+
+  const handleLogoutUser = async () => {
+    try {
+      await dbLogoutUser();
+      setCurrentUser(null);
+      showToast('Oturum kapatıldı.', 'info');
+      navigateTo('login');
+    } catch (err: any) {
+      console.error('Logout Error:', err);
+      navigateTo('login');
+    }
+  };
 
   React.useEffect(() => {
     localStorage.setItem('yol_acik_pending_venues', JSON.stringify(pendingVenues));
@@ -610,17 +667,17 @@ export default function App() {
         return (
           <OnboardingView
             onComplete={() => navigateTo('login')}
-            onGuestAccess={handleLoginSuccess}
+            onGuestAccess={() => handleLoginUser()}
           />
         );
 
       case 'login':
         return (
           <LoginView
-            onLoginSuccess={handleLoginSuccess}
+            onLoginSuccess={handleLoginUser}
             onGoRegister={() => navigateTo('register')}
-            onGoForgot={() => alert('Şifre sıfırlama e-postası gönderildi.')}
-            onGuestContinue={handleLoginSuccess}
+            onGoForgot={() => alert('Şifre sıfırlama talebiniz alındı.')}
+            onGuestContinue={() => handleLoginUser()}
             onGoLanding={() => navigateTo('landing')}
           />
         );
@@ -628,7 +685,7 @@ export default function App() {
       case 'register':
         return (
           <RegisterView
-            onRegisterSuccess={handleLoginSuccess}
+            onRegisterSuccess={handleRegisterUser}
             onGoLogin={() => navigateTo('login')}
             onGoLanding={() => navigateTo('landing')}
           />
@@ -764,13 +821,16 @@ export default function App() {
             favoriteVenues={favoriteVenues}
             myReviews={reviews}
             preferences={preferences}
+            userName={currentUser?.displayName || 'Kullanıcı'}
+            userAvatar={currentUser?.userAvatar}
+            userBadge={currentUser?.userBadge}
             pendingCount={pendingVenues.length}
             onOpenPreferences={() => navigateTo('accessibility_preferences')}
             onOpenSettings={() => navigateTo('settings')}
             onOpenNotifications={() => navigateTo('notifications')}
             onOpenGoogleForms={() => navigateTo('google_forms')}
             onSelectVenue={handleOpenDetail}
-            onLogout={() => navigateTo('login')}
+            onLogout={handleLogoutUser}
             onOpenOnboarding={() => navigateTo('onboarding')}
             onOpenFirstTimeSurvey={() => setIsFirstTimeSurveyOpen(true)}
             onOpenAdminApproval={() => setIsAdminApprovalOpen(true)}
