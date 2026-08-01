@@ -156,16 +156,23 @@ export default function App() {
     };
   }, [handleGoBack]);
 
-  // Check 1 week survey reminder popup on app load
+  const [isSurveyModalOpen, setIsSurveyModalOpen] = useState(false);
+  const [activeSurveyFormType, setActiveSurveyFormType] = useState<'form1' | 'form2'>('form1');
+  const [visitedVenuesCount, setVisitedVenuesCount] = useState<number>(() => {
+    return parseInt(localStorage.getItem('visited_venues_count') || '0', 10);
+  });
+
+  // Track venue visits and check 1 week elapsed survey popup
   useEffect(() => {
     const installDate = localStorage.getItem('app_first_install_date');
     if (!installDate) {
       localStorage.setItem('app_first_install_date', Date.now().toString());
     } else {
       const elapsedDays = (Date.now() - parseInt(installDate, 10)) / (1000 * 60 * 60 * 24);
-      const hasCompletedWeekForm = localStorage.getItem('hasCompletedGoogleFormSurvey') === 'true';
-      if (elapsedDays >= 7 && !hasCompletedWeekForm) {
-        setIsFirstTimeSurveyOpen(true);
+      const hasCompletedForm2 = localStorage.getItem('hasCompletedForm2Survey') === 'true';
+      if (elapsedDays >= 7 && !hasCompletedForm2) {
+        setActiveSurveyFormType('form2');
+        setIsSurveyModalOpen(true);
       }
     }
   }, []);
@@ -174,6 +181,13 @@ export default function App() {
     // Reset history stack to 'home' so back button stops at home and doesn't go back to auth/landing screens
     screenHistoryRef.current = ['home'];
     navigateTo('home');
+    
+    // Show Form 1 (Ön Değerlendirme Formu) on initial login if not completed yet
+    const hasCompletedForm1 = localStorage.getItem('hasCompletedForm1Survey') === 'true';
+    if (!hasCompletedForm1) {
+      setActiveSurveyFormType('form1');
+      setIsSurveyModalOpen(true);
+    }
   };
 
   // App Data State
@@ -469,10 +483,22 @@ export default function App() {
     );
   };
 
-  // Open Venue Detail
+  // Open Venue Detail & Track Venue Visit Count for Form 2 Trigger
   const handleOpenDetail = (venue: Venue) => {
     setSelectedVenue(venue);
     navigateTo('venue_detail');
+
+    // Increment venue visit counter
+    const nextCount = visitedVenuesCount + 1;
+    setVisitedVenuesCount(nextCount);
+    localStorage.setItem('visited_venues_count', nextCount.toString());
+
+    // Trigger Form 2 (Son Değerlendirme Formu) after 5 venue visits if not completed yet
+    const hasCompletedForm2 = localStorage.getItem('hasCompletedForm2Survey') === 'true';
+    if (nextCount >= 5 && !hasCompletedForm2) {
+      setActiveSurveyFormType('form2');
+      setIsSurveyModalOpen(true);
+    }
   };
 
   // Open Venue Detail by ID
@@ -737,12 +763,19 @@ export default function App() {
           onRejectVenue={handleRejectVenue}
         />
 
-        {/* Global Google Form Onboarding Modal for First Time Users (Shown after leaving landing page) */}
+        {/* Global Google Form Evaluation Modal (Form 1: İlk Giriş Ön Değerlendirme / Form 2: 1 Hafta veya 5 Mekân Sonrası) */}
         <GoogleFormOnboardingModal
-          isOpen={isFirstTimeSurveyOpen && currentScreen !== 'landing'}
-          onClose={() => setIsFirstTimeSurveyOpen(false)}
+          isOpen={isSurveyModalOpen && currentScreen !== 'landing'}
+          formType={activeSurveyFormType}
+          onClose={() => setIsSurveyModalOpen(false)}
           onComplete={(answers) => {
-            console.log('Google Form onboarding answers submitted:', answers);
+            console.log('Google Form survey answers submitted:', activeSurveyFormType, answers);
+            if (activeSurveyFormType === 'form1') {
+              localStorage.setItem('hasCompletedForm1Survey', 'true');
+            } else {
+              localStorage.setItem('hasCompletedForm2Survey', 'true');
+            }
+            setIsSurveyModalOpen(false);
           }}
         />
 

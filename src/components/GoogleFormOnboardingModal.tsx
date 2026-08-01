@@ -12,6 +12,7 @@ interface GoogleFormOnboardingModalProps {
   isOpen: boolean;
   onClose: () => void;
   onComplete: (answers: Record<number, string>) => void;
+  formType?: 'form1' | 'form2';
 }
 
 // Form 1: Ön Değerlendirme Formu (İlk Kullanım Anketi)
@@ -114,6 +115,7 @@ export const GoogleFormOnboardingModal: React.FC<GoogleFormOnboardingModalProps>
   isOpen,
   onClose,
   onComplete,
+  formType,
 }) => {
   const [activeFormType, setActiveFormType] = useState<'form1' | 'form2'>('form1');
   const [answers, setAnswers] = useState<Record<number, string>>({});
