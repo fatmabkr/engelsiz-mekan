@@ -29,6 +29,7 @@ import {
 // Views
 import { HomeView } from './views/HomeView';
 import { ExploreView } from './views/ExploreView';
+import { SearchView } from './views/SearchView';
 import { VenueDetailView } from './views/VenueDetailView';
 import { AddVenueWizard } from './views/AddVenueWizard';
 import { FiltersBottomSheet } from './views/FiltersBottomSheet';
@@ -483,10 +484,27 @@ export default function App() {
     );
   };
 
+  // Track recent visited/opened venues
+  const [recentlyVisitedVenues, setRecentlyVisitedVenues] = useState<Venue[]>(() => {
+    try {
+      const saved = localStorage.getItem('yol_acik_recently_visited_venues');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
   // Open Venue Detail & Track Venue Visit Count for Form 2 Trigger
   const handleOpenDetail = (venue: Venue) => {
     setSelectedVenue(venue);
     navigateTo('venue_detail');
+
+    // Add to recently visited venues list (unique by ID, max 6 items)
+    setRecentlyVisitedVenues((prev) => {
+      const updated = [venue, ...prev.filter((v) => v.id !== venue.id)].slice(0, 6);
+      localStorage.setItem('yol_acik_recently_visited_venues', JSON.stringify(updated));
+      return updated;
+    });
 
     // Increment venue visit counter
     const nextCount = visitedVenuesCount + 1;
@@ -586,6 +604,24 @@ export default function App() {
         );
 
       case 'search':
+        return (
+          <SearchView
+            venues={venues}
+            recentlyVisitedVenues={recentlyVisitedVenues}
+            onClearRecentVenues={() => {
+              setRecentlyVisitedVenues([]);
+              localStorage.removeItem('yol_acik_recently_visited_venues');
+            }}
+            onSelectVenue={handleOpenDetail}
+            onToggleFavorite={handleToggleFavorite}
+            onOpenFilterSheet={() => setIsFilterSheetOpen(true)}
+            filters={filters}
+            onUpdateFilters={setFilters}
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+          />
+        );
+
       case 'explore':
         return (
           <ExploreView
