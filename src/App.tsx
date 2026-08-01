@@ -604,9 +604,9 @@ export default function App() {
   const showBottomNav = ['home', 'explore', 'search', 'map', 'community', 'profile'].includes(currentScreen);
 
   return (
-    <div className="min-h-screen bg-[#0B1329] font-sans text-slate-900 flex flex-col items-center justify-center p-0 sm:py-4 antialiased selection:bg-teal-500 selection:text-white">
-      {/* Main Mobile Frame Shell */}
-      <div className="w-full max-w-[430px] h-screen sm:h-[880px] sm:max-h-[94vh] bg-[#FAFAFA] relative shadow-2xl flex flex-col overflow-hidden rounded-none sm:rounded-[36px] sm:border-[6px] sm:border-slate-800">
+    <div className="min-h-screen bg-slate-900 sm:bg-[#0B1329] font-sans text-slate-900 flex flex-col items-center justify-center p-0 sm:p-4 antialiased selection:bg-teal-500 selection:text-white">
+      {/* Main Responsive Container: Full screen on mobile devices, sleek mobile frame mockup on desktop/tablets */}
+      <div className="w-full sm:max-w-[430px] h-screen sm:h-[880px] sm:max-h-[94vh] bg-[#FAFAFA] relative shadow-2xl flex flex-col overflow-hidden rounded-none sm:rounded-[36px] border-0 sm:border-[6px] sm:border-slate-800">
         
         {/* Scrollable View Container */}
         <div className="flex-1 overflow-y-auto overflow-x-hidden no-scrollbar w-full relative">
