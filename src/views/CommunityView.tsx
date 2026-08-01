@@ -929,7 +929,7 @@ export const CommunityView: React.FC<CommunityViewProps> = ({
                 </div>
               </div>
 
-              {/* Option 2: Search user by username or invite code */}
+              {/* Search user by username or invite code */}
               <div className="space-y-2">
                 <label className="text-xs font-bold text-slate-800 flex items-center justify-between">
                   <span>Kullanıcı Adı veya Davet Kodu ile Ara</span>
@@ -944,47 +944,6 @@ export const CommunityView: React.FC<CommunityViewProps> = ({
                     placeholder="@kullanici_adi veya ENG-1234"
                     className="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#12B886]"
                   />
-                </div>
-              </div>
-
-              {/* Sample Quick Add Suggested Friends in Eskişehir */}
-              <div className="space-y-2 pt-1">
-                <span className="text-[11px] font-bold text-slate-500 block">Eskişehir'deki Önerilen Kullanıcılar</span>
-                <div className="space-y-1.5 max-h-36 overflow-y-auto no-scrollbar">
-                  {[
-                    { name: 'Selin Yılmaz', location: 'Espark AVM Yakınında', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80' },
-                    { name: 'Caner Demir', location: 'Vişnelik Starbucks', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80' },
-                    { name: 'Elif Kaya', location: 'Anadolu Üni. Yunus Emre Kampüsü', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80' },
-                  ].map((usr) => (
-                    <div key={usr.name} className="p-2 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between">
-                      <div className="flex items-center gap-2.5">
-                        <img src={usr.avatar} alt={usr.name} className="w-8 h-8 rounded-full object-cover ring-1 ring-slate-200" />
-                        <div>
-                          <p className="text-xs font-bold text-slate-800">{usr.name}</p>
-                          <p className="text-[10px] text-slate-400 font-medium">📍 {usr.location}</p>
-                        </div>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (onAddFriend) {
-                            onAddFriend({
-                              name: usr.name,
-                              locationName: usr.location,
-                              distance: '300 m uzakta',
-                              avatar: usr.avatar,
-                            });
-                          }
-                          setShareToast(`${usr.name} arkadaşlara eklendi!`);
-                          setTimeout(() => setShareToast(null), 2500);
-                          setShowAddFriendModal(false);
-                        }}
-                        className="px-3 py-1 bg-[#0D1B2A] hover:bg-[#12B886] text-white text-[11px] font-bold rounded-lg transition-all cursor-pointer"
-                      >
-                        + Davet Et
-                      </button>
-                    </div>
-                  ))}
                 </div>
               </div>
             </div>
