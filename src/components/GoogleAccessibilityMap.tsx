@@ -907,6 +907,7 @@ const GoogleAccessibilityMapInner: React.FC<GoogleAccessibilityMapProps> = ({
                   center={[ESKISEHIR_CENTER.lat, ESKISEHIR_CENTER.lng]}
                   zoom={14}
                   scrollWheelZoom={true}
+                  attributionControl={false}
                   style={{ width: '100%', height: '100%', borderRadius: '1.5rem' }}
                 >
                   <ChangeView
