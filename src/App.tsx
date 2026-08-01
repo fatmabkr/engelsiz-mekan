@@ -93,18 +93,26 @@ export default function App() {
     const handlePopState = (e: PopStateEvent) => {
       const history = screenHistoryRef.current;
 
+      // Filter history to ensure we don't go back to auth/landing screens once inside app
+      while (history.length > 1 && ['landing', 'login', 'register', 'onboarding', 'splash'].includes(history[history.length - 1])) {
+        history.pop();
+      }
+
       // Remove the current screen from history
       if (history.length > 1) {
         history.pop();
-        const previousScreen = history[history.length - 1];
+        let previousScreen = history[history.length - 1];
+        if (['landing', 'login', 'register', 'onboarding', 'splash'].includes(previousScreen)) {
+          previousScreen = 'home';
+          screenHistoryRef.current = ['home'];
+        }
         isPopstateNavRef.current = true;
         setCurrentScreen(previousScreen);
-        // Re-push so there's always a history entry to pop next time
         try {
           window.history.pushState({ screen: previousScreen }, '', '');
         } catch (_) { /* ignore */ }
       } else {
-        // Already on root screen — prevent app from exiting
+        // Already on root screen (home) — prevent app from exiting or going back to landing
         try {
           window.history.pushState({ screen: history[0] || 'home' }, '', '');
         } catch (_) { /* ignore */ }
@@ -120,11 +128,15 @@ export default function App() {
         const history = screenHistoryRef.current;
         if (history.length > 1) {
           history.pop();
-          const previousScreen = history[history.length - 1];
+          let previousScreen = history[history.length - 1];
+          if (['landing', 'login', 'register', 'onboarding', 'splash'].includes(previousScreen)) {
+            previousScreen = 'home';
+            screenHistoryRef.current = ['home'];
+          }
           isPopstateNavRef.current = true;
           setCurrentScreen(previousScreen);
         } else {
-          // On root screen, do nothing or prevent exit
+          // On root screen (home), stay on home
         }
       }).then(l => { backButtonListener = l; }).catch(() => {});
     }).catch(() => {});
@@ -138,6 +150,8 @@ export default function App() {
   }, []);
 
   const handleLoginSuccess = () => {
+    // Reset history stack to 'home' so back button stops at home and doesn't go back to auth/landing screens
+    screenHistoryRef.current = ['home'];
     navigateTo('home');
     setIsFirstTimeSurveyOpen(true);
   };
