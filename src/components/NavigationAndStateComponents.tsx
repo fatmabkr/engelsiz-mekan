@@ -181,7 +181,7 @@ export const BottomNavigation: React.FC<BottomNavProps> = ({
 
   return (
     <div className="sticky bottom-0 z-40 shrink-0 w-full bg-white/95 backdrop-blur-md border-t border-slate-200/80 shadow-lg pb-safe select-none">
-      <div className="relative px-2 py-1 flex items-center justify-between">
+      <div className="relative px-2 pt-1.5 pb-1 flex items-center justify-between">
         {tabsLeft.map((tab) => {
           const Icon = tab.icon;
           const isActive = currentScreen === tab.id;
@@ -200,10 +200,10 @@ export const BottomNavigation: React.FC<BottomNavProps> = ({
         })}
 
         {/* Center Floating Action Button: Mekân Ekle */}
-        <div className="relative -top-3.5 flex flex-col items-center px-1 shrink-0">
+        <div className="relative -top-2 flex flex-col items-center px-1 shrink-0">
           <button
             onClick={onAddVenueClick}
-            className="w-12 h-12 rounded-full bg-gradient-to-r from-[#0D1B2A] to-[#12B886] active:scale-95 text-white shadow-md flex items-center justify-center transition-all cursor-pointer ring-4 ring-white"
+            className="w-11 h-11 rounded-full bg-gradient-to-r from-[#0D1B2A] to-[#12B886] active:scale-95 text-white shadow-md flex items-center justify-center transition-all cursor-pointer ring-4 ring-white"
             aria-label="Mekân Ekle"
           >
             <Plus className="w-6 h-6 stroke-[2.5]" />

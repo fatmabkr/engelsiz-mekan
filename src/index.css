@@ -70,7 +70,10 @@
   visibility: hidden !important;
   height: 0 !important;
   width: 0 !important;
-  pointer-events: none !important;
 }
 
+/* Safe area padding helper for Android navigation bar / iOS home indicator */
+.pb-safe {
+  padding-bottom: max(20px, env(safe-area-inset-bottom, 20px));
+}
 

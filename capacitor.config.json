@@ -1,0 +1,8 @@
+{
+  "appId": "com.engelsizmekan.app",
+  "appName": "Engelsiz Mekân",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https"
+  }
+}
