@@ -882,82 +882,130 @@ export const CommunityView: React.FC<CommunityViewProps> = ({
         </div>
       )}
 
-      {/* 9. ADD FRIEND MODAL */}
+      {/* 9. INVITE FRIEND / FOLLOW USER MODAL */}
       {showAddFriendModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-[28px] max-w-md w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-150 border border-slate-100">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <h3 className="font-extrabold text-base text-[#0D1B2A] flex items-center gap-2">
-                <UserPlus className="w-4 h-4 text-[#12B886]" />
-                <span>Yeni Arkadaş Ekle</span>
+                <UserPlus className="w-5 h-5 text-[#12B886]" />
+                <span>Arkadaşını Davet Et & Konum Takibi</span>
               </h3>
-              <button onClick={() => setShowAddFriendModal(false)} className="p-1 rounded-full text-slate-400 hover:text-slate-600">
+              <button onClick={() => setShowAddFriendModal(false)} className="p-1 rounded-full text-slate-400 hover:text-slate-600 cursor-pointer">
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <div className="space-y-3">
-              <div>
-                <label className="text-[11px] font-bold text-slate-700 mb-1 block">Arkadaşın Adı Soyadı</label>
-                <input
-                  type="text"
-                  value={newFriendName}
-                  onChange={(e) => setNewFriendName(e.target.value)}
-                  placeholder="Örn: Ahmet Yılmaz"
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#12B886]"
-                />
+
+            <div className="space-y-4">
+              {/* Option 1: Share Personal Invite Link / Code */}
+              <div className="bg-teal-50/80 p-4 rounded-2xl border border-teal-100 space-y-2">
+                <div className="flex items-center gap-2 text-xs font-black text-[#0D1B2A]">
+                  <Share2 className="w-4 h-4 text-[#12B886]" />
+                  <span>Davet Bağlantısı / Kodu</span>
+                </div>
+                <p className="text-[11px] text-slate-600 leading-relaxed font-normal">
+                  Arkadaşınıza davet linkinizi gönderin. Kabul ettiğinde canlı konumunuz haritada anlık paylaşılır.
+                </p>
+                <div className="flex items-center gap-2 pt-1">
+                  <input
+                    type="text"
+                    readOnly
+                    value="https://engelsizmekan.app/invite/ENG-8492"
+                    className="flex-1 px-3 py-2 bg-white border border-teal-200 rounded-xl text-xs font-mono text-slate-700 font-bold select-all"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (navigator.clipboard) {
+                        navigator.clipboard.writeText("https://engelsizmekan.app/invite/ENG-8492");
+                      }
+                      setShareToast("Davet bağlantısı kopyalandı!");
+                      setTimeout(() => setShareToast(null), 2500);
+                    }}
+                    className="px-3.5 py-2 bg-[#12B886] hover:bg-[#0f9f74] text-white text-xs font-extrabold rounded-xl transition-all cursor-pointer shadow-xs whitespace-nowrap"
+                  >
+                    Kopyala
+                  </button>
+                </div>
               </div>
-              <div>
-                <label className="text-[11px] font-bold text-slate-700 mb-1 block">Konum / Bölge (Eskişehir)</label>
-                <input
-                  type="text"
-                  value={newFriendLocation}
-                  onChange={(e) => setNewFriendLocation(e.target.value)}
-                  placeholder="Örn: Espark AVM, Vişnelik, Odunpazarı..."
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#12B886]"
-                />
-                
-                {/* Hızlı Konum Seçim Çipleri */}
-                <div className="flex flex-wrap gap-1.5 mt-2">
+
+              {/* Option 2: Search user by username or invite code */}
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-800 flex items-center justify-between">
+                  <span>Kullanıcı Adı veya Davet Kodu ile Ara</span>
+                  <span className="text-[10px] text-slate-400 font-normal">Canlı Arama</span>
+                </label>
+                <div className="relative">
+                  <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="text"
+                    value={newFriendName}
+                    onChange={(e) => setNewFriendName(e.target.value)}
+                    placeholder="@kullanici_adi veya ENG-1234"
+                    className="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#12B886]"
+                  />
+                </div>
+              </div>
+
+              {/* Sample Quick Add Suggested Friends in Eskişehir */}
+              <div className="space-y-2 pt-1">
+                <span className="text-[11px] font-bold text-slate-500 block">Eskişehir'deki Önerilen Kullanıcılar</span>
+                <div className="space-y-1.5 max-h-36 overflow-y-auto no-scrollbar">
                   {[
-                    'Espark AVM',
-                    'Vişnelik Starbucks',
-                    'Porsuk Bulvarı',
-                    'Odunpazarı Evleri',
-                    'Anadolu Üniversitesi',
-                    'Kanatlı AVM',
-                    'Sazova Parkı'
-                  ].map((locName) => (
-                    <button
-                      key={locName}
-                      type="button"
-                      onClick={() => setNewFriendLocation(locName)}
-                      className={`px-2.5 py-1 rounded-full text-[10px] font-bold border cursor-pointer transition-all ${
-                        newFriendLocation === locName
-                          ? 'bg-[#12B886] text-white border-[#12B886]'
-                          : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
-                      }`}
-                    >
-                      📍 {locName}
-                    </button>
+                    { name: 'Selin Yılmaz', location: 'Espark AVM Yakınında', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80' },
+                    { name: 'Caner Demir', location: 'Vişnelik Starbucks', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80' },
+                    { name: 'Elif Kaya', location: 'Anadolu Üni. Yunus Emre Kampüsü', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80' },
+                  ].map((usr) => (
+                    <div key={usr.name} className="p-2 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between">
+                      <div className="flex items-center gap-2.5">
+                        <img src={usr.avatar} alt={usr.name} className="w-8 h-8 rounded-full object-cover ring-1 ring-slate-200" />
+                        <div>
+                          <p className="text-xs font-bold text-slate-800">{usr.name}</p>
+                          <p className="text-[10px] text-slate-400 font-medium">📍 {usr.location}</p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (onAddFriend) {
+                            onAddFriend({
+                              name: usr.name,
+                              locationName: usr.location,
+                              distance: '300 m uzakta',
+                              avatar: usr.avatar,
+                            });
+                          }
+                          setShareToast(`${usr.name} arkadaşlara eklendi!`);
+                          setTimeout(() => setShareToast(null), 2500);
+                          setShowAddFriendModal(false);
+                        }}
+                        className="px-3 py-1 bg-[#0D1B2A] hover:bg-[#12B886] text-white text-[11px] font-bold rounded-lg transition-all cursor-pointer"
+                      >
+                        + Davet Et
+                      </button>
+                    </div>
                   ))}
                 </div>
               </div>
             </div>
-            <div className="flex items-center justify-end gap-2 pt-2">
+
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
               <button
                 type="button"
                 onClick={() => setShowAddFriendModal(false)}
-                className="px-4 py-2 rounded-xl text-xs font-bold text-slate-500 hover:bg-slate-100"
+                className="px-4 py-2 rounded-xl text-xs font-bold text-slate-500 hover:bg-slate-100 cursor-pointer"
               >
-                İptal
+                Kapat
               </button>
-              <button
-                type="button"
-                onClick={handleAddFriendSubmit}
-                className="px-5 py-2 rounded-xl bg-[#12B886] text-white font-extrabold text-xs shadow-md hover:bg-[#0f9f74] transition-all"
-              >
-                Ekle
-              </button>
+              {newFriendName.trim() && (
+                <button
+                  type="button"
+                  onClick={handleAddFriendSubmit}
+                  className="px-5 py-2 rounded-xl bg-[#12B886] text-white font-extrabold text-xs shadow-md hover:bg-[#0f9f74] transition-all cursor-pointer"
+                >
+                  Davet Gönder
+                </button>
+              )}
             </div>
           </div>
         </div>
