@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { 
   Screen, 
   Venue, 
@@ -67,8 +67,57 @@ export default function App() {
   const [mapSelectedVenue, setMapSelectedVenue] = useState<Venue | null>(null);
   const [isFirstTimeSurveyOpen, setIsFirstTimeSurveyOpen] = useState(true);
 
+  // ── Back Button Navigation History ──
+  const screenHistoryRef = useRef<Screen[]>(['landing']);
+  const isPopstateNavRef = useRef(false);
+
+  // Safe navigate function — pushes browser history so back button works
+  const navigateTo = useCallback((screen: Screen) => {
+    if (!isPopstateNavRef.current) {
+      screenHistoryRef.current.push(screen);
+      try {
+        window.history.pushState({ screen }, '', '');
+      } catch (_) { /* ignore */ }
+    }
+    isPopstateNavRef.current = false;
+    setCurrentScreen(screen);
+  }, []);
+
+  // Listen for hardware/browser back button (popstate)
+  useEffect(() => {
+    // Push an initial history entry so we have something to pop
+    try {
+      window.history.pushState({ screen: 'landing' }, '', '');
+    } catch (_) { /* ignore */ }
+
+    const handlePopState = (e: PopStateEvent) => {
+      const history = screenHistoryRef.current;
+
+      // Remove the current screen from history
+      if (history.length > 1) {
+        history.pop();
+        const previousScreen = history[history.length - 1];
+        isPopstateNavRef.current = true;
+        setCurrentScreen(previousScreen);
+        // Re-push so there's always a history entry to pop next time
+        try {
+          window.history.pushState({ screen: previousScreen }, '', '');
+        } catch (_) { /* ignore */ }
+      } else {
+        // Already on root screen — prevent app from exiting
+        // Push a dummy entry back so back button doesn't close the app
+        try {
+          window.history.pushState({ screen: history[0] || 'home' }, '', '');
+        } catch (_) { /* ignore */ }
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
   const handleLoginSuccess = () => {
-    setCurrentScreen('home');
+    navigateTo('home');
     setIsFirstTimeSurveyOpen(true);
   };
 
@@ -368,7 +417,7 @@ export default function App() {
   // Open Venue Detail
   const handleOpenDetail = (venue: Venue) => {
     setSelectedVenue(venue);
-    setCurrentScreen('venue_detail');
+    navigateTo('venue_detail');
   };
 
   // Open Venue Detail by ID
@@ -402,18 +451,18 @@ export default function App() {
       case 'landing':
         return (
           <LandingView 
-            onStartApp={(targetScreen = 'home') => setCurrentScreen(targetScreen)}
+            onStartApp={(targetScreen = 'home') => navigateTo(targetScreen)}
             featuredVenues={venues}
           />
         );
 
       case 'splash':
-        return <SplashView onStart={() => setCurrentScreen('onboarding')} />;
+        return <SplashView onStart={() => navigateTo('onboarding')} />;
 
       case 'onboarding':
         return (
           <OnboardingView
-            onComplete={() => setCurrentScreen('login')}
+            onComplete={() => navigateTo('login')}
             onGuestAccess={handleLoginSuccess}
           />
         );
@@ -422,10 +471,10 @@ export default function App() {
         return (
           <LoginView
             onLoginSuccess={handleLoginSuccess}
-            onGoRegister={() => setCurrentScreen('register')}
+            onGoRegister={() => navigateTo('register')}
             onGoForgot={() => alert('Şifre sıfırlama e-postası gönderildi.')}
             onGuestContinue={handleLoginSuccess}
-            onGoLanding={() => setCurrentScreen('landing')}
+            onGoLanding={() => navigateTo('landing')}
           />
         );
 
@@ -433,8 +482,8 @@ export default function App() {
         return (
           <RegisterView
             onRegisterSuccess={handleLoginSuccess}
-            onGoLogin={() => setCurrentScreen('login')}
-            onGoLanding={() => setCurrentScreen('landing')}
+            onGoLogin={() => navigateTo('login')}
+            onGoLanding={() => navigateTo('landing')}
           />
         );
 
@@ -445,13 +494,13 @@ export default function App() {
             onSelectVenue={handleOpenDetail}
             onToggleFavorite={handleToggleFavorite}
             onOpenFilterSheet={() => setIsFilterSheetOpen(true)}
-            onNavigateTab={(tab) => setCurrentScreen(tab as Screen)}
+            onNavigateTab={(tab) => navigateTo(tab as Screen)}
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
             preferences={preferences}
-            onOpenPreferences={() => setCurrentScreen('accessibility_preferences')}
-            onOpenNotifications={() => setCurrentScreen('notifications')}
-            onOpenProfile={() => setCurrentScreen('profile')}
+            onOpenPreferences={() => navigateTo('accessibility_preferences')}
+            onOpenNotifications={() => navigateTo('notifications')}
+            onOpenProfile={() => navigateTo('profile')}
           />
         );
 
@@ -463,7 +512,7 @@ export default function App() {
             onSelectVenue={handleOpenDetail}
             onToggleFavorite={handleToggleFavorite}
             onOpenFilterSheet={() => setIsFilterSheetOpen(true)}
-            onOpenMapView={() => setCurrentScreen('map')}
+            onOpenMapView={() => navigateTo('map')}
             filters={filters}
             onUpdateFilters={setFilters}
             searchQuery={searchQuery}
@@ -493,7 +542,7 @@ export default function App() {
             venue={selectedVenue}
             allVenues={venues}
             reviews={reviews.filter((r) => r.venueId === selectedVenue.id)}
-            onBack={() => setCurrentScreen('home')}
+            onBack={() => navigateTo('home')}
             onSelectVenue={handleOpenDetail}
             onToggleFavorite={handleToggleFavorite}
             onAddReview={handleAddReview}
@@ -504,20 +553,20 @@ export default function App() {
             onSelectVenue={handleOpenDetail}
             onToggleFavorite={handleToggleFavorite}
             onOpenFilterSheet={() => setIsFilterSheetOpen(true)}
-            onNavigateTab={(tab) => setCurrentScreen(tab as Screen)}
+            onNavigateTab={(tab) => navigateTo(tab as Screen)}
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
             preferences={preferences}
-            onOpenPreferences={() => setCurrentScreen('accessibility_preferences')}
-            onOpenNotifications={() => setCurrentScreen('notifications')}
-            onOpenProfile={() => setCurrentScreen('profile')}
+            onOpenPreferences={() => navigateTo('accessibility_preferences')}
+            onOpenNotifications={() => navigateTo('notifications')}
+            onOpenProfile={() => navigateTo('profile')}
           />
         );
 
       case 'add_venue':
         return (
           <AddVenueWizard
-            onBack={() => setCurrentScreen('home')}
+            onBack={() => navigateTo('home')}
             onSubmitVenue={handleAddVenue}
           />
         );
@@ -528,8 +577,8 @@ export default function App() {
             posts={posts}
             friends={friends}
             onSelectVenueById={handleOpenDetailById}
-            onOpenChat={() => setCurrentScreen('chat_list')}
-            onOpenFriendMap={() => setCurrentScreen('map')}
+            onOpenChat={() => navigateTo('chat_list')}
+            onOpenFriendMap={() => navigateTo('map')}
             onAddPost={handleAddPost}
             onDeletePost={handleDeletePost}
             onEditPost={handleEditPost}
@@ -541,7 +590,7 @@ export default function App() {
 
       case 'chat_list':
       case 'chat_detail':
-        return <ChatView onBack={() => setCurrentScreen('community')} />;
+        return <ChatView onBack={() => navigateTo('community')} />;
 
       case 'profile':
         return (
@@ -551,16 +600,16 @@ export default function App() {
             myReviews={reviews}
             preferences={preferences}
             pendingCount={pendingVenues.length}
-            onOpenPreferences={() => setCurrentScreen('accessibility_preferences')}
-            onOpenSettings={() => setCurrentScreen('settings')}
-            onOpenNotifications={() => setCurrentScreen('notifications')}
-            onOpenGoogleForms={() => setCurrentScreen('google_forms')}
+            onOpenPreferences={() => navigateTo('accessibility_preferences')}
+            onOpenSettings={() => navigateTo('settings')}
+            onOpenNotifications={() => navigateTo('notifications')}
+            onOpenGoogleForms={() => navigateTo('google_forms')}
             onSelectVenue={handleOpenDetail}
-            onLogout={() => setCurrentScreen('login')}
-            onOpenOnboarding={() => setCurrentScreen('onboarding')}
+            onLogout={() => navigateTo('login')}
+            onOpenOnboarding={() => navigateTo('onboarding')}
             onOpenFirstTimeSurvey={() => setIsFirstTimeSurveyOpen(true)}
             onOpenAdminApproval={() => setIsAdminApprovalOpen(true)}
-            onOpenLanding={() => setCurrentScreen('landing')}
+            onOpenLanding={() => navigateTo('landing')}
           />
         );
 
@@ -569,18 +618,18 @@ export default function App() {
           <AccessibilityPreferencesView
             preferences={preferences}
             onSavePreferences={setPreferences}
-            onBack={() => setCurrentScreen('profile')}
+            onBack={() => navigateTo('profile')}
           />
         );
 
       case 'settings':
-        return <SettingsView onBack={() => setCurrentScreen('profile')} onOpenGoogleForms={() => setCurrentScreen('google_forms')} />;
+        return <SettingsView onBack={() => navigateTo('profile')} onOpenGoogleForms={() => navigateTo('google_forms')} />;
 
       case 'notifications':
-        return <NotificationsView onBack={() => setCurrentScreen('home')} />;
+        return <NotificationsView onBack={() => navigateTo('home')} />;
 
       case 'google_forms':
-        return <GoogleFormsView onBack={() => setCurrentScreen('profile')} />;
+        return <GoogleFormsView onBack={() => navigateTo('profile')} />;
 
       default:
         return (
@@ -589,13 +638,13 @@ export default function App() {
             onSelectVenue={handleOpenDetail}
             onToggleFavorite={handleToggleFavorite}
             onOpenFilterSheet={() => setIsFilterSheetOpen(true)}
-            onNavigateTab={(tab) => setCurrentScreen(tab as Screen)}
+            onNavigateTab={(tab) => navigateTo(tab as Screen)}
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
             preferences={preferences}
-            onOpenPreferences={() => setCurrentScreen('accessibility_preferences')}
-            onOpenNotifications={() => setCurrentScreen('notifications')}
-            onOpenProfile={() => setCurrentScreen('profile')}
+            onOpenPreferences={() => navigateTo('accessibility_preferences')}
+            onOpenNotifications={() => navigateTo('notifications')}
+            onOpenProfile={() => navigateTo('profile')}
           />
         );
     }
@@ -617,8 +666,8 @@ export default function App() {
         {showBottomNav && (
           <BottomNavigation
             currentScreen={currentScreen}
-            onNavigate={(sc) => setCurrentScreen(sc)}
-            onAddVenueClick={() => setCurrentScreen('add_venue')}
+            onNavigate={(sc) => navigateTo(sc)}
+            onAddVenueClick={() => navigateTo('add_venue')}
           />
         )}
 
