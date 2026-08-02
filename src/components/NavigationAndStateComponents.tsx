@@ -1,5 +1,6 @@
 import React from 'react';
 import { Logo } from './Logo';
+import { UserAvatar } from './UserAvatar';
 import { 
   Home, 
   Compass, 
@@ -94,6 +95,8 @@ interface HeaderProps {
   onNotificationClick?: () => void;
   onProfileClick?: () => void;
   unreadNotificationsCount?: number;
+  userName?: string;
+  userPhotoURL?: string;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -102,6 +105,8 @@ export const Header: React.FC<HeaderProps> = ({
   onNotificationClick,
   onProfileClick,
   unreadNotificationsCount = 0,
+  userName = 'Kullanıcı',
+  userPhotoURL = '',
 }) => {
   return (
     <div className="bg-white/95 backdrop-blur-md px-4 py-2.5 border-b border-slate-100 sticky top-0 z-30 shadow-xs w-full">
@@ -140,11 +145,7 @@ export const Header: React.FC<HeaderProps> = ({
             className="w-9 h-9 rounded-full ring-2 ring-[#0F172A]/30 overflow-hidden cursor-pointer active:scale-95 transition-transform shrink-0"
             aria-label="Profilim"
           >
-            <img
-              src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80"
-              alt="Profil"
-              className="w-full h-full object-cover"
-            />
+            <UserAvatar name={userName} photoURL={userPhotoURL} size={36} />
           </button>
         </div>
       </div>

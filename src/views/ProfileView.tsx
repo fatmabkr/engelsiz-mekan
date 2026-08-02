@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { 
   User, 
   MapPin, 
@@ -13,12 +13,14 @@ import {
   Award, 
   ChevronRight,
   Sparkles,
-  FileText
+  FileText,
+  Camera
 } from 'lucide-react';
 import { Venue, Review, AccessibilityPreferences } from '../types';
 import { ProfileStatCard } from '../components/UIElements';
 import { CompactVenueCard } from '../components/VenueCards';
 import { ReviewCard } from '../components/NavigationAndStateComponents';
+import { UserAvatar } from '../components/UserAvatar';
 
 interface ProfileViewProps {
   venues: Venue[];
@@ -29,6 +31,7 @@ interface ProfileViewProps {
   userAvatar?: string;
   userBadge?: string;
   pendingCount?: number;
+  isAdmin?: boolean;
   onOpenPreferences: () => void;
   onOpenSettings: () => void;
   onOpenNotifications: () => void;
@@ -39,6 +42,7 @@ interface ProfileViewProps {
   onOpenFirstTimeSurvey?: () => void;
   onOpenAdminApproval?: () => void;
   onOpenLanding?: () => void;
+  onPhotoUpload?: (photoDataURL: string) => void;
 }
 
 export const ProfileView: React.FC<ProfileViewProps> = ({
@@ -47,9 +51,10 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   myReviews,
   preferences,
   userName = 'Kullanıcı',
-  userAvatar = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80',
+  userAvatar = '',
   userBadge = 'Topluluk Üyesi',
   pendingCount = 0,
+  isAdmin = false,
   onOpenPreferences,
   onOpenSettings,
   onOpenNotifications,
@@ -60,13 +65,30 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   onOpenFirstTimeSurvey,
   onOpenAdminApproval,
   onOpenLanding,
+  onPhotoUpload,
 }) => {
   const [activeTab, setActiveTab] = useState<'favorites' | 'reviews' | 'my_venues'>('favorites');
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const mySubmittedVenues = venues.filter((v) => v.tags?.includes('Kullanıcı Katkısı'));
   const venuesCount = mySubmittedVenues.length;
   const reviewsCount = myReviews.length;
   const points = (venuesCount * 50) + (reviewsCount * 25);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Fotoğraf boyutu en fazla 5MB olabilir.');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const dataURL = event.target?.result as string;
+      onPhotoUpload?.(dataURL);
+    };
+    reader.readAsDataURL(file);
+  };
 
   return (
     <div className="bg-[#FAFAFA] min-h-screen pb-24 max-w-md mx-auto space-y-4">
@@ -89,16 +111,23 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           </button>
         </div>
 
-        {/* User Image */}
+        {/* User Avatar with Photo Upload */}
         <div className="relative mt-2">
-          <img
-            src={userAvatar}
-            alt={userName}
-            className="w-20 h-20 rounded-full object-cover ring-4 ring-[#0F172A]/20 shadow-soft"
+          <UserAvatar name={userName} photoURL={userAvatar} size={80} className="ring-4 ring-[#0F172A]/20 shadow-soft" />
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleFileChange}
           />
-          <span className="absolute bottom-0 right-0 p-1 bg-[#0F172A] text-white rounded-full">
-            <ShieldCheck className="w-4 h-4 text-[#0D9488]" />
-          </span>
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="absolute bottom-0 right-0 p-1.5 bg-[#0D9488] text-white rounded-full shadow-md hover:bg-[#0F766E] transition-colors cursor-pointer"
+            aria-label="Fotoğraf Yükle"
+          >
+            <Camera className="w-3.5 h-3.5" />
+          </button>
         </div>
 
         <h2 className="text-xl font-black text-gray-900 mt-3 capitalize">{userName}</h2>
@@ -244,7 +273,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 
       {/* Onboarding, Admin & Logout Actions */}
       <div className="px-4 pt-2 space-y-2">
-        {onOpenAdminApproval && (
+        {isAdmin && onOpenAdminApproval && (
           <button
             onClick={onOpenAdminApproval}
             className="w-full py-3.5 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl text-xs font-black flex items-center justify-between px-4 shadow-soft transition-colors cursor-pointer border border-slate-700"
@@ -266,7 +295,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           </button>
         )}
 
-        {onOpenFirstTimeSurvey && (
+        {isAdmin && onOpenFirstTimeSurvey && (
           <button
             onClick={onOpenFirstTimeSurvey}
             className="w-full py-3 bg-purple-50 hover:bg-purple-100 text-[#673AB7] rounded-2xl text-xs font-extrabold flex items-center justify-center gap-2 border border-purple-100 transition-colors cursor-pointer"

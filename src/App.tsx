@@ -54,6 +54,7 @@ import {
   dbRegisterUser,
   dbLoginUser,
   dbLogoutUser,
+  dbResetPassword,
   subscribeToAuth,
   formatFirebaseAuthError,
   UserProfile
@@ -63,6 +64,7 @@ import {
   OnboardingView, 
   LoginView, 
   RegisterView, 
+  ForgotPasswordView,
   SettingsView, 
   NotificationsView 
 } from './views/AuthAndInfoViews';
@@ -274,6 +276,24 @@ export default function App() {
 
   // Active User Profile State (Firebase Auth & Firestore Users collection)
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
+  
+  // User profile photo (stored locally per user)
+  const [userPhotoURL, setUserPhotoURL] = useState<string>('');
+  
+  React.useEffect(() => {
+    if (currentUser?.uid) {
+      const saved = localStorage.getItem(`yol_acik_photo_${currentUser.uid}`);
+      if (saved) setUserPhotoURL(saved);
+      else setUserPhotoURL('');
+    }
+  }, [currentUser?.uid]);
+
+  const handlePhotoUpload = (photoDataURL: string) => {
+    setUserPhotoURL(photoDataURL);
+    if (currentUser?.uid) {
+      localStorage.setItem(`yol_acik_photo_${currentUser.uid}`, photoDataURL);
+    }
+  };
 
   React.useEffect(() => {
     // Subscribe to Firestore collections
@@ -650,6 +670,14 @@ export default function App() {
       return <NoInternetState onRetry={() => setSimulatedState('normal')} />;
     }
 
+    // Admin check
+    const adminEmails = ['fatmabakir895@gmail.com', 'stempower26@gmail.com'];
+    const isAdminUser = currentUser?.email ? adminEmails.includes(currentUser.email.toLowerCase()) : false;
+
+    // Derived user display name and photo
+    const displayName = currentUser?.displayName || 'Kullanıcı';
+    const displayPhoto = userPhotoURL || currentUser?.userAvatar || '';
+
     // 2. Main Screen Router
     switch (currentScreen) {
       case 'landing':
@@ -676,7 +704,7 @@ export default function App() {
           <LoginView
             onLoginSuccess={handleLoginUser}
             onGoRegister={() => navigateTo('register')}
-            onGoForgot={() => alert('Şifre sıfırlama talebiniz alındı.')}
+            onGoForgot={() => navigateTo('forgot_password')}
             onGuestContinue={() => handleLoginUser()}
             onGoLanding={() => navigateTo('landing')}
           />
@@ -688,6 +716,23 @@ export default function App() {
             onRegisterSuccess={handleRegisterUser}
             onGoLogin={() => navigateTo('login')}
             onGoLanding={() => navigateTo('landing')}
+          />
+        );
+
+      case 'forgot_password':
+        return (
+          <ForgotPasswordView
+            onResetSuccess={async (email) => {
+              try {
+                await dbResetPassword(email);
+                showToast('Şifre sıfırlama bağlantısı e-posta adresinize gönderildi.', 'success');
+              } catch (err: any) {
+                const formatted = formatFirebaseAuthError(err);
+                showToast(formatted, 'error');
+                throw new Error(formatted);
+              }
+            }}
+            onGoLogin={() => navigateTo('login')}
           />
         );
 
@@ -705,6 +750,8 @@ export default function App() {
             onOpenPreferences={() => navigateTo('accessibility_preferences')}
             onOpenNotifications={() => navigateTo('notifications')}
             onOpenProfile={() => navigateTo('profile')}
+            userName={displayName}
+            userPhotoURL={displayPhoto}
           />
         );
 
@@ -782,6 +829,8 @@ export default function App() {
             onOpenPreferences={() => navigateTo('accessibility_preferences')}
             onOpenNotifications={() => navigateTo('notifications')}
             onOpenProfile={() => navigateTo('profile')}
+            userName={displayName}
+            userPhotoURL={displayPhoto}
           />
         );
 
@@ -821,10 +870,11 @@ export default function App() {
             favoriteVenues={favoriteVenues}
             myReviews={reviews}
             preferences={preferences}
-            userName={currentUser?.displayName || 'Kullanıcı'}
-            userAvatar={currentUser?.userAvatar}
+            userName={displayName}
+            userAvatar={displayPhoto}
             userBadge={currentUser?.userBadge}
             pendingCount={pendingVenues.length}
+            isAdmin={isAdminUser}
             onOpenPreferences={() => navigateTo('accessibility_preferences')}
             onOpenSettings={() => navigateTo('settings')}
             onOpenNotifications={() => navigateTo('notifications')}
@@ -835,6 +885,7 @@ export default function App() {
             onOpenFirstTimeSurvey={() => setIsFirstTimeSurveyOpen(true)}
             onOpenAdminApproval={() => setIsAdminApprovalOpen(true)}
             onOpenLanding={() => navigateTo('landing')}
+            onPhotoUpload={handlePhotoUpload}
           />
         );
 
@@ -848,7 +899,7 @@ export default function App() {
         );
 
       case 'settings':
-        return <SettingsView onBack={() => navigateTo('profile')} onOpenGoogleForms={() => navigateTo('google_forms')} />;
+        return <SettingsView onBack={() => navigateTo('profile')} onOpenGoogleForms={() => navigateTo('google_forms')} isAdmin={isAdminUser} />;
 
       case 'notifications':
         return <NotificationsView onBack={() => navigateTo('home')} />;
@@ -870,6 +921,8 @@ export default function App() {
             onOpenPreferences={() => navigateTo('accessibility_preferences')}
             onOpenNotifications={() => navigateTo('notifications')}
             onOpenProfile={() => navigateTo('profile')}
+            userName={displayName}
+            userPhotoURL={displayPhoto}
           />
         );
     }

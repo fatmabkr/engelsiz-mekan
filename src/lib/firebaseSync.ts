@@ -9,6 +9,7 @@ import {
 import { 
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword, 
+  sendPasswordResetEmail,
   updateProfile, 
   signOut, 
   onAuthStateChanged,
@@ -124,6 +125,16 @@ export async function dbLogoutUser(): Promise<void> {
     await signOut(auth);
   } catch (error) {
     console.error("Firebase Logout Error:", error);
+    throw error;
+  }
+}
+
+// Password Reset Email via Firebase Auth
+export async function dbResetPassword(email: string): Promise<void> {
+  try {
+    await sendPasswordResetEmail(auth, email);
+  } catch (error: any) {
+    console.error("Firebase Password Reset Error:", error);
     throw error;
   }
 }

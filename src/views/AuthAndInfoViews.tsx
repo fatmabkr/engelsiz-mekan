@@ -818,10 +818,123 @@ export const RegisterView: React.FC<{
 };
 
 /* -------------------------------------------------------------------------- */
+/* Reset Password View                                                        */
+/* -------------------------------------------------------------------------- */
+
+export const ForgotPasswordView: React.FC<{
+  onResetSuccess: (email: string) => Promise<void>;
+  onGoLogin: () => void;
+}> = ({ onResetSuccess, onGoLogin }) => {
+  const [email, setEmail] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.trim()) {
+      setErrorMsg('Lütfen e-posta adresinizi giriniz.');
+      return;
+    }
+    setErrorMsg(null);
+    setIsSubmitting(true);
+    try {
+      await onResetSuccess(email);
+      setIsSuccess(true);
+    } catch (err: any) {
+      setErrorMsg(err?.message || 'Şifre sıfırlama bağlantısı gönderilemedi. E-posta adresinizi kontrol ediniz.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="bg-slate-50 min-h-screen max-w-md mx-auto flex flex-col justify-between font-sans">
+      {/* Top Banner Header */}
+      <div className="bg-gradient-to-br from-[#0F172A] via-[#0F766E] to-[#059669] p-6 pb-10 text-white rounded-b-[32px] shadow-md text-center space-y-1.5 flex flex-col items-center relative">
+        <div className="w-full flex items-center justify-between mb-1">
+          <button
+            type="button"
+            onClick={onGoLogin}
+            className="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold flex items-center gap-1 transition-colors cursor-pointer border border-white/20"
+          >
+            <ArrowLeft className="w-3.5 h-3.5 text-emerald-300" />
+            <span>Giriş Ekranına Dön</span>
+          </button>
+        </div>
+        <h2 className="text-2xl font-black text-white">Şifremi Unuttum</h2>
+        <p className="text-xs text-teal-100 font-medium">E-posta adresinize şifre sıfırlama bağlantısı göndereceğiz</p>
+      </div>
+
+      <div className="p-6 -mt-6">
+        <div className="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-soft space-y-4">
+          {isSuccess ? (
+            <div className="space-y-4 text-center py-4">
+              <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-2xl">
+                ✓
+              </div>
+              <div className="space-y-1">
+                <h3 className="font-extrabold text-sm text-slate-800">E-posta Gönderildi!</h3>
+                <p className="text-xs text-slate-500 max-w-xs mx-auto leading-relaxed">
+                  <strong className="text-slate-700">{email}</strong> adresine şifre sıfırlama bağlantısı gönderildi. Lütfen gelen kutunuzu (ve gereksiz/spam klasörünü) kontrol ediniz.
+                </p>
+              </div>
+              <PrimaryButton onClick={onGoLogin} fullWidth>
+                Giriş Ekranına Dön
+              </PrimaryButton>
+            </div>
+          ) : (
+            <>
+              {errorMsg && (
+                <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-800 text-xs font-bold flex items-start gap-2 animate-in fade-in">
+                  <span className="shrink-0 text-sm">⚠️</span>
+                  <p className="leading-snug">{errorMsg}</p>
+                </div>
+              )}
+
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <label className="text-xs font-bold text-slate-800 block mb-1">E-posta Adresi *</label>
+                  <div className="relative flex items-center">
+                    <Mail className="w-4 h-4 absolute left-3.5 text-slate-400" />
+                    <input
+                      type="email"
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="ornek@mail.com"
+                      className="w-full pl-10 pr-3 py-3 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#0F172A] focus:bg-white"
+                    />
+                  </div>
+                </div>
+
+                <PrimaryButton type="submit" fullWidth disabled={isSubmitting}>
+                  {isSubmitting ? 'Sıfırlama Bağlantısı Gönderiliyor...' : 'Şifre Sıfırlama Bağlantısı Gönder'}
+                </PrimaryButton>
+              </form>
+
+              <div className="text-center pt-2 border-t border-slate-100">
+                <button onClick={onGoLogin} className="text-xs font-bold text-[#0D9488] hover:underline cursor-pointer">
+                  Giriş ekranına geri dön
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+
+      <div className="text-center pb-4 pt-2">
+        <p className="text-[11px] text-slate-400">Eskişehir • Engelsiz Mekân Keşif Rehberi</p>
+      </div>
+    </div>
+  );
+};
+
+/* -------------------------------------------------------------------------- */
 /* Settings & Notifications                                                   */
 /* -------------------------------------------------------------------------- */
 
-export const SettingsView: React.FC<{ onBack: () => void; onOpenGoogleForms?: () => void }> = ({ onBack, onOpenGoogleForms }) => {
+export const SettingsView: React.FC<{ onBack: () => void; onOpenGoogleForms?: () => void; isAdmin?: boolean }> = ({ onBack, onOpenGoogleForms, isAdmin = false }) => {
   return (
     <div className="bg-[#FAFAFA] min-h-screen max-w-md mx-auto space-y-4 pb-20">
       <div className="bg-white px-4 py-3 border-b border-gray-100 flex items-center justify-between sticky top-0 z-30">
@@ -833,7 +946,7 @@ export const SettingsView: React.FC<{ onBack: () => void; onOpenGoogleForms?: ()
       </div>
 
       <div className="p-4 space-y-4">
-        {onOpenGoogleForms && (
+        {isAdmin && onOpenGoogleForms && (
           <div className="p-4 bg-white rounded-2xl border border-teal-200 space-y-2">
             <h3 className="font-bold text-xs text-gray-800 uppercase tracking-wider">Entegrasyonlar</h3>
             <button

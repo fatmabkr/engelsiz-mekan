@@ -32,6 +32,8 @@ interface HomeViewProps {
   onOpenPreferences: () => void;
   onOpenNotifications: () => void;
   onOpenProfile: () => void;
+  userName?: string;
+  userPhotoURL?: string;
 }
 
 export const HomeView: React.FC<HomeViewProps> = ({
@@ -46,6 +48,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
   onOpenPreferences,
   onOpenNotifications,
   onOpenProfile,
+  userName = 'Kullanıcı',
+  userPhotoURL = '',
 }) => {
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [activeQuickFilter, setActiveQuickFilter] = useState<string>('all');
@@ -91,6 +95,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
         onCityClick={() => alert('Şu an aktif şehir: Eskişehir. Diğer şehirler yakında eklenecektir.')}
         onNotificationClick={onOpenNotifications}
         onProfileClick={onOpenProfile}
+        userName={userName}
+        userPhotoURL={userPhotoURL}
       />
 
       {/* Search Bar */}
