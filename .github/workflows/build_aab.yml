@@ -62,8 +62,20 @@ jobs:
           chmod +x gradlew
           ./gradlew bundleRelease
 
-      - name: Upload AAB Artifact
+      # --- AAB İMZALAMA ADIMI ---
+      - name: Sign AAB
+        id: sign_aab
+        uses: r0adk3ll/sign-android-release@v1
+        with:
+          releaseDirectory: android/app/build/outputs/bundle/release
+          signingKeyBase64: ${{ secrets.KEYSTORE_BASE64 }}
+          alias: ${{ secrets.RELEASE_KEY_ALIAS }}
+          keyStorePassword: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
+          keyPassword: ${{ secrets.RELEASE_KEY_PASSWORD }}
+
+      # --- İMZALANMIŞ AAB DOSYASINI YÜKLEME ---
+      - name: Upload Signed AAB Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: YolAcik-Release-AAB
-          path: android/app/build/outputs/bundle/release/app-release.aab
+          name: YolAcik-Signed-AAB
+          path: ${{ steps.sign_aab.outputs.signedReleaseFile }}
