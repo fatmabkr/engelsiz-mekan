@@ -1,4 +1,4 @@
-name: Build Android APK (Vite + Capacitor)
+name: Build Android AAB (Vite + Capacitor)
 
 on:
   push:
@@ -31,7 +31,7 @@ jobs:
       - name: Setup Capacitor & Add Android
         run: |
           npm install @capacitor/core @capacitor/cli @capacitor/android
-          npx cap init "YolAcik" "com.yolacik.app" --web-dir "dist" || true
+          npx cap init "YolAcik" "com.engelsizmekan.app" --web-dir "dist" || true
           npx cap add android || true
           npx cap sync android
 
@@ -56,14 +56,14 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
 
-      - name: Build APK with Gradle
+      - name: Build AAB with Gradle
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug
+          ./gradlew bundleRelease
 
-      - name: Upload APK Artifact
+      - name: Upload AAB Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: YolAcik-Debug-APK
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          name: YolAcik-Release-AAB
+          path: android/app/build/outputs/bundle/release/app-release.aab
